@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Dimensions, Text } from 'react-native';
 
 import { useNavigation } from '@react-navigation/native';
-import MapView, { MapEvent, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, {
+    Marker,
+    MapPressEvent,
+    PROVIDER_GOOGLE,
+} from 'react-native-maps';
 
 import mapMarkerImg from '../../images/map-marker.png';
 import customMapStyle from '../../../map-style.json';
@@ -12,7 +16,7 @@ export default function SelectMapPosition() {
     const navigation = useNavigation();
     const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
 
-    function handleSelectMapPosition(event: MapEvent) {
+    function handleSelectMapPosition(event: MapPressEvent) {
         setPosition(event.nativeEvent.coordinate);
     }
 

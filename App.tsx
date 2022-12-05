@@ -1,5 +1,6 @@
 import React from 'react';
 import { StatusBar } from 'react-native';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 import {
     useFonts,
@@ -29,7 +30,9 @@ export default function App() {
                     translucent
                     barStyle="dark-content"
                 />
-                <AppStack />
+                <ActionSheetProvider>
+                    <AppStack />
+                </ActionSheetProvider>
             </>
         );
     }

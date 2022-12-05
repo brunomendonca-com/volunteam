@@ -19,6 +19,15 @@
         },
         "web": {
             "favicon": "./assets/favicon.png"
-        }
+        },
+        "plugins": [
+            [
+                "expo-image-picker",
+                {
+                    "photosPermission": "The app accesses your photos to let you add them to events.",
+                    "cameraPermission": "The app accesses your camera to let you add pictures to events."
+                }
+            ]
+        ]
     }
 }

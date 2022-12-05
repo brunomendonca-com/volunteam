@@ -6,6 +6,8 @@ import {
     Text,
     StyleSheet,
     Dimensions,
+    Share,
+    ShareAction,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Feather } from '@expo/vector-icons';
@@ -16,6 +18,27 @@ import BigButton from '../components/BigButton';
 import Spacer from '../components/Spacer';
 
 export default function EventDetails() {
+    const onShare = async () => {
+        try {
+            const result: ShareAction = await Share.share({
+                message:
+                    'volunteam | find opportunities to help people in your area',
+            });
+            if (result.action === Share.sharedAction) {
+                if (result.activityType) {
+                    // shared with activity type of result.activityType
+                } else {
+                    // shared
+                }
+            } else if (result.action === Share.dismissedAction) {
+                // dismissed
+            }
+        } catch (error) {
+            if (error instanceof Error) alert(error.message);
+            else alert('Unknown Error');
+        }
+    };
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.imagesContainer}>
@@ -87,7 +110,7 @@ export default function EventDetails() {
                         label="Share"
                         color="#00A3FF"
                         featherIconName="share-2"
-                        onPress={() => console.log('share pressed')}
+                        onPress={onShare}
                     />
                     <Spacer horizontal />
                     <BigButton

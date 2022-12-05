@@ -5,11 +5,13 @@ import {
     Text,
     TextInput,
     TouchableOpacity,
+    Platform,
 } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { RectButton } from 'react-native-gesture-handler';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 
 interface EventDataRouteParams {
     position: { latitude: number; longitude: number };
@@ -18,31 +20,85 @@ interface EventDataRouteParams {
 export default function EventData() {
     const route = useRoute();
     const navigation = useNavigation();
-
-    const [open_on_weekends, setOpenOnWeekends] = useState(false);
-
     const params = route.params as EventDataRouteParams;
     const position = params.position;
+
+    // The path of the picked image
+    const [imagePath, setImagePath] = useState<string>();
+
+    const { showActionSheetWithOptions } = useActionSheet();
 
     function handleCreateEvent() {
         // todo
     }
 
     async function handleSelectImages() {
-        const { status } =
-            await ImagePicker.requestCameraRollPermissionsAsync();
+        const options = ['Take Photo...', 'Choose from Library...', 'Cancel'];
 
-        if (status !== 'granted') {
-            alert('Oops! We need permission to access your pictures...');
+        showActionSheetWithOptions(
+            {
+                options,
+                cancelButtonIndex: 2,
+                title: 'Choose an action',
+            },
+            (selectedIndex) => {
+                switch (selectedIndex) {
+                    case 0:
+                        openCamera();
+                        break;
+                    case 1:
+                        openImagePicker();
+                        break;
+                }
+            }
+        );
+    }
+
+    const options: ImagePicker.ImagePickerOptions = {
+        allowsEditing: true,
+        quality: 1,
+        allowsMultipleSelection: false,
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    };
+
+    const openImagePicker = async () => {
+        // Ask the user for the permission to access the media library
+        const permissionResult =
+            await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+        console.log('permissionResult', permissionResult);
+        if (permissionResult.granted === false) {
+            alert("You've refused to allow this appp to access your photos!");
+            return;
         }
 
-        const result = await ImagePicker.launchImageLibraryAsync({
-            allowsEditing: true,
-            quality: 1,
-        });
+        try {
+            const response = await ImagePicker.launchImageLibraryAsync(options);
+            if (!response.canceled) {
+                setImagePath(response.assets[0].uri);
+                console.log(response.assets[0].uri);
+            }
+        } catch {}
+    };
 
-        console.log(result);
-    }
+    const openCamera = async () => {
+        // Ask the user for the permission to access the camera
+        const permissionResult =
+            await ImagePicker.requestCameraPermissionsAsync();
+
+        if (permissionResult.granted === false) {
+            alert("You've refused to allow this appp to access your camera!");
+            return;
+        }
+
+        try {
+            const response = await ImagePicker.launchCameraAsync(options);
+            if (!response.canceled) {
+                setImagePath(response.assets[0].uri);
+                console.log(response.assets[0].uri);
+            }
+        } catch {}
+    };
 
     return (
         <ScrollView
