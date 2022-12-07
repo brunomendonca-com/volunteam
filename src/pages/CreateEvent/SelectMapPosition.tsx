@@ -11,9 +11,10 @@ import MapView, {
 import mapMarkerImg from '../../images/map-marker.png';
 import customMapStyle from '../../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
+import { StackScreenProps } from '@react-navigation/stack';
 
-export default function SelectMapPosition() {
-    const navigation = useNavigation();
+export default function SelectMapPosition(props: StackScreenProps<any>) {
+    const { navigation } = props;
     const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
 
     function handleSelectMapPosition(event: MapPressEvent) {

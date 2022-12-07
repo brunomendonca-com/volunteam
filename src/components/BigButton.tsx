@@ -7,16 +7,13 @@ interface BigButtonProps {
     label: string;
     color: string;
     featherIconName?: string;
+    disabled?: boolean;
     onPress: () => void;
 }
 
-export default function BigButton({
-    featherIconName,
-    label,
-    color,
-    onPress,
-}: BigButtonProps) {
-    const styles = styling(color);
+export default function BigButton(props: BigButtonProps) {
+    const styles = styling(props);
+    const { featherIconName, label, color, disabled, onPress } = props;
 
     return (
         <RectButton style={styles.button} onPress={onPress}>
@@ -33,12 +30,12 @@ export default function BigButton({
     );
 }
 
-const styling = (color: string) =>
+const styling = ({ color, disabled }: BigButtonProps) =>
     StyleSheet.create({
         button: {
             paddingVertical: 14,
             paddingHorizontal: 32,
-            backgroundColor: color,
+            backgroundColor: disabled ? color + '80' : color,
             borderRadius: 16,
             height: 56,
 

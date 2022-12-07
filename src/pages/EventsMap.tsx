@@ -9,8 +9,9 @@ import * as Location from 'expo-location';
 import mapMarkerImg from '../images/map-marker.png';
 import customMapStyle from '../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
+import { StackScreenProps } from '@react-navigation/stack';
 
-export default function EventsMap() {
+export default function EventsMap(props: StackScreenProps<any>) {
     const defaultLocation = {
         coords: {
             latitude: 51.03,
@@ -26,7 +27,7 @@ export default function EventsMap() {
     const [location, setLocation] =
         useState<Location.LocationObject>(defaultLocation);
     const [errorMsg, setErrorMsg] = useState<string>();
-    const navigation = useNavigation();
+    const { navigation } = props;
 
     useEffect(() => {
         (async () => {
@@ -65,9 +66,7 @@ export default function EventsMap() {
                 }}
                 style={styles.mapStyle}
                 customMapStyle={customMapStyle}
-                showsCompass={true}
                 showsUserLocation={true}
-                showsMyLocationButton={true}
             >
                 <Marker
                     icon={mapMarkerImg}
@@ -107,7 +106,7 @@ const styles = StyleSheet.create({
     footer: {
         position: 'absolute',
         left: 24,
-        right: 80,
+        right: 24,
         bottom: 44,
 
         backgroundColor: '#FFF',
