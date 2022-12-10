@@ -6,13 +6,12 @@ import {
     ViewProps,
 } from 'react-native';
 
-import { useEffect, useState } from 'react';
-import { castToNumber } from '../utils';
+import { useState } from 'react';
 
 type NumberInputProps = {
     value?: number;
     style?: TextInputProps['style'];
-    onChangeNumber?: (val: number | undefined) => void;
+    onChangeNumber?: (val: number) => void;
 };
 
 export default function NumberInput(props: NumberInputProps) {
@@ -20,10 +19,6 @@ export default function NumberInput(props: NumberInputProps) {
     const [internalValue, setInternalValue] = useState<number | undefined>(
         value
     );
-
-    useEffect(() => {
-        setInternalValue(value);
-    }, [value]);
 
     const styles = splitStyle(style);
 
@@ -34,11 +29,10 @@ export default function NumberInput(props: NumberInputProps) {
                 style={styles.field}
                 keyboardType="number-pad"
                 onChangeText={(val) => {
-                    const numberVal = val && val.replace(/[^0-9]/g, '');
-                    const cast = castToNumber(numberVal);
-                    const newValue = Number.isNaN(cast) ? undefined : cast;
-                    setInternalValue(newValue);
-                    onChangeNumber?.(newValue);
+                    const newVal =
+                        val.length && Number(val.replace(/[^0-9]/g, ''));
+                    setInternalValue(newVal);
+                    onChangeNumber?.(newVal);
                 }}
             />
         </View>

@@ -2,7 +2,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Feather } from '@expo/vector-icons';
 import { StackScreenProps } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Image,
     ScrollView,
@@ -19,61 +19,72 @@ import NumberInput from '../../components/NumberInput';
 import Spacer from '../../components/Spacer';
 import { formatBytes } from '../../utils';
 
-type EventDataRouteParams = {
-    position: {
-        latitude: number;
-        longitude: number;
-    };
+type Coordinates = {
+    latitude: number;
+    longitude: number;
 };
 
-type FormValue = {
+type EventDataRouteParams = {
+    position: Coordinates;
+};
+
+type Event = {
     name: string | null;
     description: string | null;
     volunteers: number | null;
-    date: number | null;
-    time: number | null;
+    dateTime: Date;
+    imageAsset: ImagePicker.ImagePickerAsset | null;
+    imageRemoteUrl: string | null;
+    position: Coordinates;
 };
 
-export default function EventData(props: StackScreenProps<any>) {
-    const { navigation, route } = props;
-    const params = route.params as EventDataRouteParams;
-    const position = params.position;
-
+export default function EventData({
+    navigation,
+    route,
+}: StackScreenProps<any>) {
+    const { position } = route.params as EventDataRouteParams;
     const { showActionSheetWithOptions } = useActionSheet();
 
-    const [imageAsset, setImageAsset] =
-        useState<ImagePicker.ImagePickerAsset>();
+    const [eventFormValue, setEventFormValue] = useState<Event>({
+        name: null,
+        description: null,
+        volunteers: null,
+        dateTime: new Date(),
+        imageAsset: null,
+        imageRemoteUrl: null,
+        position,
+    });
 
     const [datePickerVisibility, setDatePickerVisibility] =
         useState<boolean>(false);
-    const [date, setDate] = useState<Date>(new Date());
+
     const onDateSelected = (value: Date) => {
-        setDate(value);
+        setEventFormValue({ ...eventFormValue, dateTime: value });
         setDatePickerVisibility(false);
     };
 
     const [timePickerVisibility, setTimePickerVisibility] =
         useState<boolean>(false);
-    const [time, setTime] = useState<Date>();
-    const onTimeSelected = (value: Date) => {
-        const timeWithoutSeconds = new Date(value.setSeconds(0, 0));
-        setTime(timeWithoutSeconds);
+
+    const onTimeSelected = (newTime: Date) => {
+        const newDateTime = getEventDateWithNewTime(newTime);
+        setEventFormValue({ ...eventFormValue, dateTime: newDateTime });
         setTimePickerVisibility(false);
     };
 
-    const handleSubmit = () => {};
-
-    const [formValue, setFormValue] = useState<FormValue>({
-        name: null,
-        description: null,
-        volunteers: null,
-        date: null,
-        time: null,
-    });
+    const getEventDateWithNewTime = (time: Date) =>
+        new Date(
+            new Date(eventFormValue.dateTime).setHours(
+                time.getHours(),
+                time.getMinutes(),
+                0,
+                0
+            )
+        );
 
     const handleCreateEvent = () => {
-        // todo
-
+        // TODO persist event
+        console.log('New Event:', eventFormValue);
         navigation.navigate('EventsMap');
     };
 
@@ -98,7 +109,7 @@ export default function EventData(props: StackScreenProps<any>) {
         );
     };
 
-    const options: ImagePicker.ImagePickerOptions = {
+    const imagePickerOptions: ImagePicker.ImagePickerOptions = {
         allowsEditing: true,
         quality: 1,
         allowsMultipleSelection: false,
@@ -117,9 +128,11 @@ export default function EventData(props: StackScreenProps<any>) {
         }
 
         try {
-            const response = await ImagePicker.launchImageLibraryAsync(options);
+            const response = await ImagePicker.launchImageLibraryAsync(
+                imagePickerOptions
+            );
             if (!response.canceled) {
-                setImageAsset(response.assets[0]);
+                persistImage(response.assets[0]);
             }
         } catch {}
     };
@@ -135,15 +148,22 @@ export default function EventData(props: StackScreenProps<any>) {
         }
 
         try {
-            const response = await ImagePicker.launchCameraAsync(options);
+            const response = await ImagePicker.launchCameraAsync(
+                imagePickerOptions
+            );
             if (!response.canceled) {
-                setImageAsset(response.assets[0]);
+                persistImage(response.assets[0]);
             }
         } catch {}
     };
 
+    const persistImage = (imageAsset: ImagePicker.ImagePickerAsset) => {
+        setEventFormValue({ ...eventFormValue, imageAsset });
+        // TODO persist image
+    };
+
     const removeImage = () => {
-        setImageAsset(undefined);
+        setEventFormValue({ ...eventFormValue, imageAsset: null });
     };
 
     return (
@@ -154,9 +174,8 @@ export default function EventData(props: StackScreenProps<any>) {
             <Text style={styles.label}>Name</Text>
             <TextInput
                 style={styles.input}
-                onChangeText={(value) => {
-                    console.log('Name:');
-                    console.log(value);
+                onChangeText={(name) => {
+                    setEventFormValue({ ...eventFormValue, name });
                 }}
                 onBlur={() => {}}
             />
@@ -164,20 +183,22 @@ export default function EventData(props: StackScreenProps<any>) {
             <TextInput
                 style={[styles.input, { height: 110 }]}
                 multiline
+                maxLength={300}
                 textAlignVertical="top"
-                onChangeText={(value) => {
-                    console.log('About:');
-                    console.log(value);
+                onChangeText={(description) => {
+                    setEventFormValue({
+                        ...eventFormValue,
+                        description,
+                    });
                 }}
                 onBlur={() => {}}
             />
             <Text style={styles.label}>Volunteers Needed</Text>
             <NumberInput
                 style={styles.input}
-                onChangeNumber={(value) => {
-                    console.log('Volunteers:');
-                    console.log(value);
-                }}
+                onChangeNumber={(volunteers) =>
+                    setEventFormValue({ ...eventFormValue, volunteers })
+                }
             />
             <Text style={styles.label}>Date and Time</Text>
             <View style={{ flexDirection: 'row' }}>
@@ -187,14 +208,14 @@ export default function EventData(props: StackScreenProps<any>) {
                         { flex: 1, flexGrow: 1, textAlign: 'center' },
                     ]}
                     onPressOut={() => setDatePickerVisibility(true)}
-                    value={date.toDateString()}
+                    value={eventFormValue.dateTime.toDateString()}
                 ></TextInput>
                 <Spacer horizontal />
                 <TextInput
                     style={[styles.input, { flex: 1, flexGrow: 1 }]}
                     textAlign="center"
                     onPressOut={() => setTimePickerVisibility(true)}
-                    value={time?.toLocaleTimeString('en-US', {
+                    value={eventFormValue.dateTime.toLocaleTimeString('en-US', {
                         hour: '2-digit',
                         minute: '2-digit',
                         hour12: true,
@@ -211,26 +232,30 @@ export default function EventData(props: StackScreenProps<any>) {
             <DateTimePickerModal
                 isVisible={timePickerVisibility}
                 mode="time"
+                date={eventFormValue.dateTime}
                 onConfirm={onTimeSelected}
                 onCancel={() => setTimePickerVisibility(false)}
             />
             <Text style={styles.label}>Picture</Text>
-            {imageAsset ? (
+            {eventFormValue.imageAsset ? (
                 <View style={styles.imageContainer}>
                     <View style={styles.imageGroup}>
                         <Image
                             source={{
-                                uri: imageAsset.uri,
+                                uri: eventFormValue.imageAsset.uri,
                             }}
                             style={styles.image}
                             resizeMode="cover"
                         />
                         <View>
                             <Text style={styles.label}>
-                                {imageAsset.fileName || 'new_image_file'}
+                                {eventFormValue.imageAsset.fileName ||
+                                    'new_image_file'}
                                 {'\n'}
-                                {imageAsset.fileSize
-                                    ? formatBytes(imageAsset.fileSize)
+                                {eventFormValue.imageAsset.fileSize
+                                    ? formatBytes(
+                                          eventFormValue.imageAsset.fileSize
+                                      )
                                     : '[unknown size]'}
                             </Text>
                         </View>
