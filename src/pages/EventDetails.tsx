@@ -42,26 +42,12 @@ export default function EventDetails() {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.imagesContainer}>
-                <ScrollView horizontal pagingEnabled>
-                    <Image
-                        style={styles.image}
-                        source={{
-                            uri: 'https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80',
-                        }}
-                    />
-                    <Image
-                        style={styles.image}
-                        source={{
-                            uri: 'https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80',
-                        }}
-                    />
-                    <Image
-                        style={styles.image}
-                        source={{
-                            uri: 'https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80',
-                        }}
-                    />
-                </ScrollView>
+                <Image
+                    style={styles.image}
+                    source={{
+                        uri: 'https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80',
+                    }}
+                />
             </View>
 
             <View style={styles.detailsContainer}>
@@ -76,7 +62,7 @@ export default function EventDetails() {
                     <View style={[styles.eventInfoBox, styles.dateTimeInfo]}>
                         <Feather
                             name="calendar"
-                            size={40}
+                            size={48}
                             color="#00A3FF"
                         ></Feather>
                         <Text
@@ -91,7 +77,7 @@ export default function EventDetails() {
                     <View style={[styles.eventInfoBox, styles.volunteerInfo]}>
                         {/* <Feather
                             name="check"
-                            size={40}
+                            size={48}
                             color="#FF8700"
                         ></Feather> */}
                         <Text style={styles.volunteerNumber}>

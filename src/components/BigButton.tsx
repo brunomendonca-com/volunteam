@@ -21,7 +21,7 @@ export default function BigButton(props: BigButtonProps) {
                 <Feather
                     style={styles.icon}
                     name={featherIconName}
-                    size={16}
+                    size={24}
                     color="#FFF"
                 />
             )}
