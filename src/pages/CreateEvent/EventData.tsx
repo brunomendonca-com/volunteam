@@ -14,6 +14,8 @@ import {
 } from 'react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import Spinner from 'react-native-loading-spinner-overlay';
+import axios from 'axios';
 import BigButton from '../../components/BigButton';
 import NumberInput from '../../components/NumberInput';
 import Spacer from '../../components/Spacer';
@@ -28,14 +30,20 @@ type EventDataRouteParams = {
     position: Coordinates;
 };
 
+type UploadedImage = {
+    filename: string;
+    size: number;
+    url: string;
+};
+
 type Event = {
-    name: string | null;
-    description: string | null;
-    volunteers: number | null;
+    name: string;
+    description: string;
+    volunteers: number;
     dateTime: Date;
-    imageAsset: ImagePicker.ImagePickerAsset | null;
-    imageRemoteUrl: string | null;
     position: Coordinates;
+    imageAssetUri?: string;
+    imageUrl?: string;
 };
 
 export default function EventData({
@@ -46,14 +54,21 @@ export default function EventData({
     const { showActionSheetWithOptions } = useActionSheet();
 
     const [eventFormValue, setEventFormValue] = useState<Event>({
-        name: null,
-        description: null,
-        volunteers: null,
+        name: '',
+        description: '',
+        volunteers: 0,
         dateTime: new Date(),
-        imageAsset: null,
-        imageRemoteUrl: null,
         position,
     });
+
+    const [uploadedImage, setUploadedImage] = useState<
+        UploadedImage | undefined
+    >();
+    const [isUploading, setIsUploading] = useState<boolean>(false);
+
+    useEffect(() => {
+        setEventFormValue({ ...eventFormValue, imageUrl: uploadedImage?.url });
+    }, [uploadedImage]);
 
     const [datePickerVisibility, setDatePickerVisibility] =
         useState<boolean>(false);
@@ -115,6 +130,7 @@ export default function EventData({
         allowsMultipleSelection: false,
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         exif: true,
+        base64: true,
     };
 
     const openImagePicker = async () => {
@@ -158,12 +174,39 @@ export default function EventData({
     };
 
     const persistImage = (imageAsset: ImagePicker.ImagePickerAsset) => {
-        setEventFormValue({ ...eventFormValue, imageAsset });
+        setEventFormValue({ ...eventFormValue, imageAssetUri: imageAsset.uri });
         // TODO persist image
+        const apiKey = '16e1e82b21ec9f8cbddaff80f386c2f3';
+        const url = `https://api.imgbb.com/1/upload?key=${apiKey}`;
+        const data = new FormData();
+        data.append('image', imageAsset.base64 as string);
+        const config = { headers: { 'Content-Type': 'multipart/form-data' } };
+
+        setIsUploading(true);
+        axios
+            .post(url, data, config)
+            .then((res) => {
+                const { image, url, size } = res.data.data;
+                const { filename } = image;
+
+                setUploadedImage({ filename, size, url });
+                setIsUploading(false);
+            })
+            .catch((error) => {
+                setIsUploading(false);
+                if (error.response) {
+                    // The request was made and the server responded with a status code
+                    // that falls out of the range of 2xx
+                    console.log(error.response.data);
+                    console.log(error.response.status);
+                    console.log(error.response.headers);
+                }
+            });
     };
 
     const removeImage = () => {
-        setEventFormValue({ ...eventFormValue, imageAsset: null });
+        setEventFormValue({ ...eventFormValue, imageAssetUri: '' });
+        setUploadedImage(undefined);
     };
 
     return (
@@ -177,7 +220,6 @@ export default function EventData({
                 onChangeText={(name) => {
                     setEventFormValue({ ...eventFormValue, name });
                 }}
-                onBlur={() => {}}
             />
             <Text style={styles.label}>About</Text>
             <TextInput
@@ -237,26 +279,28 @@ export default function EventData({
                 onCancel={() => setTimePickerVisibility(false)}
             />
             <Text style={styles.label}>Picture</Text>
-            {eventFormValue.imageAsset ? (
+            <Spinner
+                visible={isUploading}
+                textContent={'Uploading...'}
+                textStyle={styles.spinnerText}
+                size={'small'}
+            />
+            {uploadedImage ? (
                 <View style={styles.imageContainer}>
                     <View style={styles.imageGroup}>
                         <Image
                             source={{
-                                uri: eventFormValue.imageAsset.uri,
+                                uri: eventFormValue.imageAssetUri,
                             }}
                             style={styles.image}
                             resizeMode="cover"
                         />
                         <View>
                             <Text style={styles.label}>
-                                {eventFormValue.imageAsset.fileName ||
-                                    'new_image_file'}
+                                {uploadedImage?.filename}
                                 {'\n'}
-                                {eventFormValue.imageAsset.fileSize
-                                    ? formatBytes(
-                                          eventFormValue.imageAsset.fileSize
-                                      )
-                                    : '[unknown size]'}
+                                {uploadedImage?.size &&
+                                    formatBytes(uploadedImage.size)}
                             </Text>
                         </View>
                     </View>
@@ -287,25 +331,16 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
-    title: {
-        color: '#5c8599',
-        fontSize: 24,
+    spinnerText: {
+        fontSize: 16,
         fontFamily: 'Nunito_700Bold',
-        marginBottom: 32,
-        paddingBottom: 24,
-        borderBottomWidth: 0.8,
-        borderBottomColor: '#D3E2E5',
+        color: '#fff',
     },
 
     label: {
         color: '#8fa7b3',
         fontFamily: 'Nunito_600SemiBold',
         marginBottom: 8,
-    },
-
-    comment: {
-        fontSize: 11,
-        color: '#8fa7b3',
     },
 
     input: {
@@ -360,28 +395,6 @@ const styles = StyleSheet.create({
         width: undefined,
         aspectRatio: 1,
         borderRadius: 4,
-        backgroundColor: 'red',
         marginRight: 8,
-    },
-
-    switchContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginTop: 16,
-    },
-
-    nextButton: {
-        backgroundColor: '#00A3FF',
-        borderRadius: 16,
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: 56,
-    },
-
-    nextButtonText: {
-        fontFamily: 'Nunito_800ExtraBold',
-        fontSize: 16,
-        color: '#FFF',
     },
 });
