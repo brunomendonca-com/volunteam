@@ -1,4 +1,4 @@
-import { Coordinate } from './Coordinate';
+import { LatLng } from 'react-native-maps';
 
 export interface VolunteeringEvent {
     id: string;
@@ -7,7 +7,7 @@ export interface VolunteeringEvent {
     volunteersNeeded: number;
     organizerId: string;
     dateTime: Date;
-    position: Coordinate;
+    position: LatLng;
     volunteersIds: string[];
     imageUrl?: string;
 }

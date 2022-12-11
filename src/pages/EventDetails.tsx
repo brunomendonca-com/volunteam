@@ -23,7 +23,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
     const onShare = async () => {
         try {
             const result: ShareAction = await Share.share({
-                message: 'volunteam | find opportunities to help people in your area',
+                message: 'volunteam app | Find opportunities to help people in your area',
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
@@ -97,10 +97,9 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                     <MapView
                         provider={PROVIDER_GOOGLE}
                         initialRegion={{
-                            latitude: 51.03,
-                            longitude: -114.093,
-                            latitudeDelta: 0.008,
-                            longitudeDelta: 0.008,
+                            ...currentEvent.position,
+                            latitudeDelta: 0.004,
+                            longitudeDelta: 0.004,
                         }}
                         zoomEnabled={false}
                         pitchEnabled={false}
@@ -109,8 +108,9 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                         style={styles.mapStyle}
                         customMapStyle={customMapStyle}
                     >
-                        <Marker coordinate={currentEvent.position} />
-                        <Image resizeMode="contain" style={{ width: 48, height: 54 }} source={mapMarkerImg} />
+                        <Marker coordinate={currentEvent.position}>
+                            <Image resizeMode="contain" style={{ width: 48, height: 54 }} source={mapMarkerImg} />
+                        </Marker>
                     </MapView>
                 </View>
                 <Spacer size={16} />

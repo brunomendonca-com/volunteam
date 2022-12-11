@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Dimensions, Text, Image } from 'react-native';
-import MapView, { Marker, MapPressEvent, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, MapPressEvent, PROVIDER_GOOGLE, LatLng } from 'react-native-maps';
 
 import mapMarkerImg from '../../images/map-marker.png';
 import customMapStyle from '../../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
+import * as MapSettings from '../../utils/MapSettings';
 
-export default function SelectMapPosition(props: StackScreenProps<any>) {
-    const { navigation } = props;
-    const [position, setPosition] = useState({ latitude: 0, longitude: 0 });
+interface SelectMapPositionRouteParams {
+    userLocation: LatLng;
+}
+
+export default function SelectMapPosition({ navigation, route }: StackScreenProps<any>) {
+    const { userLocation } = route.params as SelectMapPositionRouteParams;
+    const [eventPosition, setEventPosition] = useState<LatLng>();
 
     function handleSelectMapPosition(event: MapPressEvent) {
-        setPosition(event.nativeEvent.coordinate);
+        setEventPosition(event.nativeEvent.coordinate);
     }
 
     function handleNextStep() {
-        navigation.navigate('EventData', { position });
+        navigation.navigate('EventData', { position: eventPosition });
     }
 
     return (
@@ -24,23 +29,22 @@ export default function SelectMapPosition(props: StackScreenProps<any>) {
             <MapView
                 provider={PROVIDER_GOOGLE}
                 initialRegion={{
-                    latitude: 51.03,
-                    longitude: -114.093,
-                    latitudeDelta: 0.008,
-                    longitudeDelta: 0.008,
+                    latitude: userLocation.latitude,
+                    longitude: userLocation.longitude,
+                    ...MapSettings.DEFAULT_DELTA,
                 }}
                 onPress={handleSelectMapPosition}
                 style={styles.mapStyle}
                 customMapStyle={customMapStyle}
             >
-                {!!position.latitude && (
-                    <Marker coordinate={position}>
+                {eventPosition && (
+                    <Marker coordinate={eventPosition}>
                         <Image resizeMode="contain" style={{ width: 48, height: 54 }} source={mapMarkerImg} />
                     </Marker>
                 )}
             </MapView>
 
-            {!!position.latitude && (
+            {eventPosition && (
                 <RectButton style={styles.nextButton} onPress={handleNextStep}>
                     <Text style={styles.nextButtonText}>Next</Text>
                 </RectButton>

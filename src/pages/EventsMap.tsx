@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
-import MapView, { EdgePadding, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { EdgePadding, LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 
 import mapMarkerImg from '../images/map-marker.png';
@@ -12,25 +12,15 @@ import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
 import { VolunteeringEventsContext } from '../context/EventsContext';
 import { VolunteeringEvent } from '../types/VolunteeringEvent';
+import * as MapSettings from '../utils/MapSettings';
 
 export default function EventsMap(props: StackScreenProps<any>) {
-    const defaultLocation = {
-        coords: {
-            latitude: 51.03,
-            longitude: -114.093,
-            altitude: null,
-            accuracy: null,
-            altitudeAccuracy: null,
-            heading: null,
-            speed: null,
-        },
-        timestamp: Date.now(),
-    };
-
-    const [location, setLocation] = useState<Location.LocationObject>(defaultLocation);
-    const [errorMsg, setErrorMsg] = useState<string>();
     const { navigation } = props;
     const events = useContext(VolunteeringEventsContext);
+    const mapViewRef = useRef<MapView>(null);
+
+    const [userLocation, setUserLocation] = useState<LatLng>(MapSettings.DEFAULT_POSITION);
+    const [errorMsg, setErrorMsg] = useState<string>();
 
     useEffect(() => {
         (async () => {
@@ -40,17 +30,33 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 return;
             }
 
-            const currentLocation = await Location.getCurrentPositionAsync({});
-            setLocation(currentLocation);
+            const currentUserLocation =
+                (await Location.getLastKnownPositionAsync()) || (await Location.getCurrentPositionAsync());
+            if (currentUserLocation) {
+                setUserLocation({
+                    latitude: currentUserLocation.coords.latitude,
+                    longitude: currentUserLocation.coords.longitude,
+                });
+            }
         })();
     }, []);
 
+    useEffect(() => {
+        fitMarkersAndUserLocation();
+    }, [userLocation]);
+
     const handleNavigateToCreateEvent = () => {
-        navigation.navigate('SelectMapPosition');
+        navigation.navigate('SelectMapPosition', { userLocation });
     };
 
     const handleNavigateToEventDetails = (currentEventId: string) => {
         navigation.navigate('EventDetails', { currentEventId });
+    };
+
+    const fitMarkersAndUserLocation = () => {
+        const eventsAndUserLocations = events.value.map((event) => event.position);
+        eventsAndUserLocations.push(userLocation);
+        mapViewRef.current?.fitToCoordinates(eventsAndUserLocations, { edgePadding: mapEdgePadding, animated: false });
     };
 
     const isTeamFull = (event: VolunteeringEvent) => {
@@ -60,23 +66,16 @@ export default function EventsMap(props: StackScreenProps<any>) {
     return (
         <View style={styles.container}>
             <MapView
+                ref={mapViewRef}
                 provider={PROVIDER_GOOGLE}
-                initialCamera={{
-                    center: {
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
-                    },
-                    pitch: 0,
-                    heading: 0,
-                    altitude: 1000,
-                    zoom: 12,
-                }}
+                initialRegion={MapSettings.DEFAULT_REGION}
                 style={styles.mapStyle}
                 customMapStyle={customMapStyle}
                 showsUserLocation={true}
                 rotateEnabled={false}
                 toolbarEnabled={false}
                 mapPadding={mapEdgePadding}
+                onMapReady={fitMarkersAndUserLocation}
             >
                 {events.value.map((volunteeringEvent) => {
                     return (

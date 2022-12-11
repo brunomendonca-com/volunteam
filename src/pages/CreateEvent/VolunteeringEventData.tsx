@@ -14,14 +14,14 @@ import BigButton from '../../components/BigButton';
 import NumberInput from '../../components/NumberInput';
 import Spacer from '../../components/Spacer';
 import * as api from '../../services/api';
-import { Coordinate } from '../../types/Coordinate';
 import { UploadedImage } from '../../types/UploadedImage';
 import { VolunteeringEvent } from '../../types/VolunteeringEvent';
 import { formatBytes, updateDateWithNewTime } from '../../utils';
 import { VolunteeringEventsContext } from '../../context/EventsContext';
+import { LatLng } from 'react-native-maps';
 
 interface VolunteeringEventDataRouteParams {
-    position: Coordinate;
+    position: LatLng;
 }
 
 interface FormData {
