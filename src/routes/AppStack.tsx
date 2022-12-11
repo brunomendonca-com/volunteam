@@ -7,7 +7,7 @@ const { Navigator, Screen } = createStackNavigator();
 
 import EventsMap from '../pages/EventsMap';
 import SelectMapPosition from '../pages/CreateEvent/SelectMapPosition';
-import EventData from '../pages/CreateEvent/EventData';
+import VolunteeringEventData from '../pages/CreateEvent/VolunteeringEventData';
 import EventDetails from '../pages/EventDetails';
 import Header from '../components/Header';
 
@@ -27,20 +27,16 @@ export default function Routes() {
                     component={SelectMapPosition}
                     options={{
                         headerShown: true,
-                        header: (props) => (
-                            <Header title="Add event" {...props} />
-                        ),
+                        header: (props) => <Header title="Add event" {...props} />,
                     }}
                 />
 
                 <Screen
                     name="EventData"
-                    component={EventData}
+                    component={VolunteeringEventData}
                     options={{
                         headerShown: true,
-                        header: (props) => (
-                            <Header title="Add Event" {...props} />
-                        ),
+                        header: (props) => <Header title="Add Event" {...props} />,
                     }}
                 />
 
@@ -49,13 +45,7 @@ export default function Routes() {
                     component={EventDetails}
                     options={{
                         headerShown: true,
-                        header: (props) => (
-                            <Header
-                                title="Event"
-                                showCancel={false}
-                                {...props}
-                            />
-                        ),
+                        header: (props) => <Header title="Event" showCancel={false} {...props} />,
                     }}
                 />
             </Navigator>

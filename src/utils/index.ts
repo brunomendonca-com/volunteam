@@ -1,3 +1,5 @@
+import Constants from 'expo-constants';
+
 export const formatBytes = (bytes: number, decimals = 2): string => {
     if (!+bytes) return '0 Bytes';
 
@@ -12,4 +14,17 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
 
 export const castToNumber = (text: string) => {
     return Number(text);
+};
+
+export const getEnvironentVariable = (variableName: string) => {
+    try {
+        const value = Constants.expoConfig?.extra?.[variableName];
+        if (value != null) {
+            return value;
+        } else {
+            throw new Error(`${variableName} not found.`);
+        }
+    } catch (e) {
+        console.error(e);
+    }
 };
