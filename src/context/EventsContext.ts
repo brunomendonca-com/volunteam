@@ -6,6 +6,6 @@ export type VolunteeringEventsContextObject = {
     setValue?: (newValue: VolunteeringEvent[]) => void;
 };
 
-export const VolunteeringEventContext = createContext<VolunteeringEventsContextObject>({
+export const VolunteeringEventsContext = createContext<VolunteeringEventsContextObject>({
     value: [],
 });

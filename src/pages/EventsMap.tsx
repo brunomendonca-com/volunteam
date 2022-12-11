@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { Feather } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
 
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { EdgePadding, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-import mapMarkerImg from '../images/map-marker.png';
+import mapMarker from '../images/map-marker.png';
+import mapMarkerBlue from '../images/map-marker.png';
 import customMapStyle from '../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
+import { VolunteeringEventsContext } from '../context/EventsContext';
+import { VolunteeringEvent } from '../types/VolunteeringEvent';
 
 export default function EventsMap(props: StackScreenProps<any>) {
     const defaultLocation = {
@@ -24,10 +26,11 @@ export default function EventsMap(props: StackScreenProps<any>) {
         },
         timestamp: Date.now(),
     };
-    const [location, setLocation] =
-        useState<Location.LocationObject>(defaultLocation);
+
+    const [location, setLocation] = useState<Location.LocationObject>(defaultLocation);
     const [errorMsg, setErrorMsg] = useState<string>();
     const { navigation } = props;
+    const events = useContext(VolunteeringEventsContext);
 
     useEffect(() => {
         (async () => {
@@ -42,13 +45,17 @@ export default function EventsMap(props: StackScreenProps<any>) {
         })();
     }, []);
 
-    function handleNavigateToCreateEvent() {
+    const handleNavigateToCreateEvent = () => {
         navigation.navigate('SelectMapPosition');
-    }
+    };
 
-    function handleNavigateToEventDetails() {
-        navigation.navigate('EventDetails');
-    }
+    const handleNavigateToEventDetails = (currentEventId: string) => {
+        navigation.navigate('EventDetails', { currentEventId });
+    };
+
+    const isTeamFull = (event: VolunteeringEvent) => {
+        return event.volunteersIds.length === event.volunteersNeeded;
+    };
 
     return (
         <View style={styles.container}>
@@ -67,29 +74,44 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 style={styles.mapStyle}
                 customMapStyle={customMapStyle}
                 showsUserLocation={true}
+                showsMyLocationButton={true}
+                rotateEnabled={false}
+                toolbarEnabled={false}
+                mapPadding={mapEdgePadding}
             >
-                <Marker
-                    icon={mapMarkerImg}
-                    coordinate={{
-                        latitude: location.coords.latitude,
-                        longitude: location.coords.longitude,
-                    }}
-                    onPress={handleNavigateToEventDetails}
-                ></Marker>
+                {events.value.map((volunteeringEvent) => {
+                    return (
+                        <Marker
+                            key={`${volunteeringEvent.name}-${volunteeringEvent.dateTime}`}
+                            image={isTeamFull(volunteeringEvent) ? mapMarkerBlue : mapMarker}
+                            coordinate={{
+                                latitude: volunteeringEvent.position.latitude,
+                                longitude: volunteeringEvent.position.longitude,
+                            }}
+                            onPress={(e) => handleNavigateToEventDetails(volunteeringEvent.id)}
+                        ></Marker>
+                    );
+                })}
             </MapView>
 
             <View style={styles.footer}>
-                <Text style={styles.footerText}>2 events found</Text>
-                <RectButton
-                    style={styles.createvent}
-                    onPress={handleNavigateToCreateEvent}
-                >
+                <Text style={styles.footerText}>
+                    {events.value.length ? `${events.value.length} event(s) found` : `No events found`}
+                </Text>
+                <RectButton style={styles.createvent} onPress={handleNavigateToCreateEvent}>
                     <Feather name="plus" size={20} color="#FFF" />
                 </RectButton>
             </View>
         </View>
     );
 }
+
+const mapEdgePadding: EdgePadding = {
+    top: 64,
+    right: 16,
+    bottom: 104,
+    left: 16,
+};
 
 const styles = StyleSheet.create({
     container: {
@@ -107,7 +129,7 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 24,
         right: 24,
-        bottom: 44,
+        bottom: 40,
 
         backgroundColor: '#FFF',
         borderRadius: 16,

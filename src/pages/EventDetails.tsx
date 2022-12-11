@@ -1,14 +1,5 @@
-import React from 'react';
-import {
-    Image,
-    View,
-    ScrollView,
-    Text,
-    StyleSheet,
-    Dimensions,
-    Share,
-    ShareAction,
-} from 'react-native';
+import React, { useContext } from 'react';
+import { Image, View, ScrollView, Text, StyleSheet, Dimensions, Share, ShareAction } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { Feather } from '@expo/vector-icons';
 
@@ -16,13 +7,23 @@ import mapMarkerImg from '../images/map-marker.png';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
 import Spacer from '../components/Spacer';
+import { VolunteeringEvent } from '../types/VolunteeringEvent';
+import { StackScreenProps } from '@react-navigation/stack';
+import { formatAMPM } from '../utils';
+import { VolunteeringEventsContext } from '../context/EventsContext';
 
-export default function EventDetails() {
+interface EventDetailsRouteParams {
+    currentEventId: string;
+}
+export default function EventDetails({ navigation, route }: StackScreenProps<any>) {
+    const { currentEventId } = route.params as EventDetailsRouteParams;
+    const events = useContext(VolunteeringEventsContext);
+    const currentEvent = events.value.find((event) => event.id === currentEventId) as VolunteeringEvent;
+    console.log('current event:', currentEvent);
     const onShare = async () => {
         try {
             const result: ShareAction = await Share.share({
-                message:
-                    'volunteam | find opportunities to help people in your area',
+                message: 'volunteam | find opportunities to help people in your area',
             });
             if (result.action === Share.sharedAction) {
                 if (result.activityType) {
@@ -45,32 +46,21 @@ export default function EventDetails() {
                 <Image
                     style={styles.image}
                     source={{
-                        uri: 'https://images.unsplash.com/photo-1593113630400-ea4288922497?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1280&q=80',
+                        uri: currentEvent.imageUrl,
                     }}
                 />
             </View>
 
             <View style={styles.detailsContainer}>
-                <Text style={styles.title}>Food Distribution</Text>
-                <Text style={styles.organizer}>organized by Robert Last</Text>
-                <Text style={styles.description}>
-                    Calgary Drop-In is recruiting volunteers to help with food
-                    distribution.
-                </Text>
+                <Text style={styles.title}>{currentEvent.name}</Text>
+                <Text style={styles.organizer}>{`organized by ${currentEvent.organizerId}`}</Text>
+                <Text style={styles.description}>{currentEvent.description}</Text>
                 <Spacer size={24} />
                 <View style={styles.eventInfoRow}>
                     <View style={[styles.eventInfoBox, styles.dateTimeInfo]}>
-                        <Feather
-                            name="calendar"
-                            size={48}
-                            color="#00A3FF"
-                        ></Feather>
-                        <Text
-                            style={[styles.eventInfoText, styles.dateTimeText]}
-                        >
-                            Oct 20, 2023
-                            {'\n'}
-                            11:00 AM
+                        <Feather name="calendar" size={48} color="#00A3FF"></Feather>
+                        <Text style={[styles.eventInfoText, styles.dateTimeText]}>
+                            {`${new Date(currentEvent.dateTime).toDateString()}\n${formatAMPM(currentEvent.dateTime)}`}
                         </Text>
                     </View>
                     <Spacer horizontal />
@@ -81,23 +71,15 @@ export default function EventDetails() {
                             color="#FF8700"
                         ></Feather> */}
                         <Text style={styles.volunteerNumber}>
-                            1 <Text style={{ fontSize: 24 }}>of</Text> 10
+                            {currentEvent.volunteersIds.length} <Text style={{ fontSize: 24 }}>of</Text>{' '}
+                            {currentEvent.volunteersNeeded}
                         </Text>
-                        <Text
-                            style={[styles.eventInfoText, styles.volunteerText]}
-                        >
-                            Volunteer(s) needed
-                        </Text>
+                        <Text style={[styles.eventInfoText, styles.volunteerText]}>Volunteer(s) needed</Text>
                     </View>
                 </View>
                 <Spacer size={16} />
                 <View style={styles.eventInfoRow}>
-                    <BigButton
-                        label="Share"
-                        color="#00A3FF"
-                        featherIconName="share-2"
-                        onPress={onShare}
-                    />
+                    <BigButton label="Share" color="#00A3FF" featherIconName="share-2" onPress={onShare} />
                     <Spacer horizontal />
                     <BigButton
                         label="Volunteer"

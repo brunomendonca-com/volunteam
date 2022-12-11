@@ -1,14 +1,13 @@
 import { Coordinate } from './Coordinate';
-import { User } from './User';
 
 export interface VolunteeringEvent {
+    id: string;
     name: string;
     description: string;
     volunteersNeeded: number;
-    organizer: User;
+    organizerId: string;
     dateTime: Date;
     position: Coordinate;
-    volunteers?: User[];
-    imageAssetPath?: string;
+    volunteersIds: string[];
     imageUrl?: string;
 }

@@ -12,6 +12,24 @@ export const formatBytes = (bytes: number, decimals = 2): string => {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`;
 };
 
+export const formatAMPM = (date: Date): string => {
+    const dateObj = new Date(date);
+    const hours = dateObj.getHours();
+    const minutes = dateObj.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    const newHours = hours % 12 ? hours : 12; // the hour '0' should be '12'
+    const newMinutes = minutes < 10 ? '0' + minutes : minutes;
+    var strTime = newHours + ':' + newMinutes + ' ' + ampm;
+    return strTime;
+};
+
+export const updateDateWithNewTime = (existingDate: Date, newTime: Date): Date => {
+    console.log('existingDate:', existingDate);
+    const newDate = new Date(new Date(existingDate).setHours(newTime.getHours(), newTime.getMinutes(), 0, 0));
+    console.log('newDate:', newDate);
+    return newDate;
+};
+
 export const castToNumber = (text: string) => {
     return Number(text);
 };
@@ -25,6 +43,6 @@ export const getEnvironentVariable = (variableName: string) => {
             throw new Error(`${variableName} not found.`);
         }
     } catch (e) {
-        console.error(e);
+        console.warn(e);
     }
 };

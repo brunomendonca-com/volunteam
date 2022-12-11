@@ -1,32 +1,41 @@
+import 'react-native-get-random-values';
 import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Feather } from '@expo/vector-icons';
 import { StackScreenProps } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useEffect, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useContext, useState } from 'react';
+import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
-import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Spinner from 'react-native-loading-spinner-overlay';
+import DateTimePickerModal from 'react-native-modal-datetime-picker';
+import { v4 as uuidv4 } from 'uuid';
 import BigButton from '../../components/BigButton';
 import NumberInput from '../../components/NumberInput';
 import Spacer from '../../components/Spacer';
-import { formatBytes } from '../../utils';
-import { Coordinate } from '../../types/Coordinate';
-import { VolunteeringEvent } from '../../types/VolunteeringEvent';
 import * as api from '../../services/api';
+import { Coordinate } from '../../types/Coordinate';
 import { UploadedImage } from '../../types/UploadedImage';
+import { VolunteeringEvent } from '../../types/VolunteeringEvent';
+import { formatBytes, updateDateWithNewTime } from '../../utils';
+import { VolunteeringEventsContext } from '../../context/EventsContext';
 
 interface VolunteeringEventDataRouteParams {
     position: Coordinate;
 }
 
-export default function VolunteeringEventData({ navigation, route }: StackScreenProps<any>) {
-    const { position } = route.params as VolunteeringEventDataRouteParams;
-    console.log(process.env);
-    console.log(position);
-    const { showActionSheetWithOptions } = useActionSheet();
+interface FormData {
+    name: string;
+    description: string;
+    volunteersNeeded: number;
+    dateTime: Date;
+}
 
-    const [eventFormValue, setEventFormValue] = useState<Partial<VolunteeringEvent>>({
+export default function VolunteeringEventData({ navigation, route }: StackScreenProps<any>) {
+    const events = useContext(VolunteeringEventsContext);
+    const { position } = route.params as VolunteeringEventDataRouteParams;
+    const { showActionSheetWithOptions } = useActionSheet();
+    const [eventFormValue, setEventFormValue] = useState<FormData>({
         name: '',
         description: '',
         volunteersNeeded: 0,
@@ -46,20 +55,21 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     const [timePickerVisibility, setTimePickerVisibility] = useState<boolean>(false);
 
     const onTimeSelected = (newTime: Date) => {
-        const newDateTime = getEventDateWithNewTime(newTime);
+        const newDateTime = updateDateWithNewTime(eventFormValue.dateTime, newTime);
         setEventFormValue({ ...eventFormValue, dateTime: newDateTime });
         setTimePickerVisibility(false);
     };
 
-    const getEventDateWithNewTime = (time: Date) => {
-        if (eventFormValue.dateTime) {
-            return new Date(new Date(eventFormValue.dateTime).setHours(time.getHours(), time.getMinutes(), 0, 0));
-        }
-    };
-
     const handleCreateEvent = () => {
         // TODO persist event
-        console.log('New Event:', eventFormValue);
+        const newEvent: VolunteeringEvent = {
+            ...eventFormValue,
+            id: uuidv4(),
+            position,
+            organizerId: 'cba65270-f837-4f21-9d7f-1d042154356d',
+            volunteersIds: [],
+            imageUrl: uploadedImage?.url,
+        };
         navigation.navigate('EventsMap');
     };
 
@@ -135,13 +145,13 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                 .then((res) => {
                     const { image, url, size } = res.data.data;
                     const { filename } = image;
-
-                    setUploadedImage({
+                    const newUploadedImage: UploadedImage = {
                         filename,
                         size,
                         url,
-                        imageAssetPath: imageAsset.uri,
-                    });
+                    };
+                    console.warn('newUploadedImage: ', newUploadedImage);
+                    setUploadedImage(newUploadedImage);
                     setIsUploading(false);
                 })
                 .catch((error) => {
@@ -161,7 +171,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     };
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
+        <KeyboardAwareScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
             <Text style={styles.label}>Name</Text>
             <TextInput
                 style={styles.input}
@@ -233,7 +243,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                     <View style={styles.imageGroup}>
                         <Image
                             source={{
-                                uri: uploadedImage.imageAssetPath || uploadedImage.url,
+                                uri: uploadedImage.url,
                             }}
                             style={styles.image}
                             resizeMode="cover"
@@ -257,7 +267,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                 </TouchableOpacity>
             )}
             <BigButton onPress={handleCreateEvent} label="Save" color="#00A3FF" />
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

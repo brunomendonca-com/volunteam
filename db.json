@@ -1,4 +1,64 @@
 {
+    "events": [
+        {
+            "id": "e3c95682-870f-4080-a0d7-ae8e23e2534f",
+            "dateTime": "2022-01-11T21:30:00.000Z",
+            "description": "Past event... should not be displayed in the map.",
+            "name": "Past Event",
+            "organizerId": "cba65270-f837-4f21-9d7f-1d042154356d",
+            "position": { "latitude": 50.905761, "longitude": -114.106943 },
+            "volunteersNeeded": 3,
+            "volunteersIds": [
+                "c114fe72-f55a-46cd-855b-95a05bf635a9",
+                "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
+                "79a3d186-b06a-4db9-9ac0-dd5ade0ff057"
+            ]
+        },
+        {
+            "id": "98301b22-2b76-44f1-a8da-8c86c56b0367",
+            "dateTime": "2023-01-11T23:30:00.000Z",
+            "description": "The Memorial Park Library is looking for volunteers to help setting up the stage for our talented local artists.\n\nAny previous event producing experience is greatly appreciated.",
+            "imageUrl": "https://i.ibb.co/N3DqYK9/d01296f77464.jpg",
+            "name": "Downtown Vibe Live Music",
+            "organizerId": "cba65270-f837-4f21-9d7f-1d042154356d",
+            "position": { "latitude": 51.04112, "longitude": -114.069325 },
+            "volunteersNeeded": 3,
+            "volunteersIds": [
+                "c114fe72-f55a-46cd-855b-95a05bf635a9",
+                "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
+                "79a3d186-b06a-4db9-9ac0-dd5ade0ff057"
+            ]
+        },
+        {
+            "id": "d7b8ea73-ba2c-4fc3-9348-9814076124bd",
+            "dateTime": "2023-02-04T16:30:00.000Z",
+            "description": "At the Flames Community Arena, we are offering a free skating lessons day with volunteer instructors.\n\nWe expect volunteer intructors to:\n- be reliable and enthusiastic\n- take initiative and be innovative\n- commit to a minimum of 4 hours of volunteering.",
+            "imageUrl": "https://i.ibb.co/JKfcDhJ/4900a709b103.jpg",
+            "name": "Free Skating Lessons Day",
+            "organizerId": "feb027bd-59d2-43d2-bfe3-f8c9536e91c1",
+            "position": { "latitude": 51.01222958257112, "longitude": -114.11677222698927 },
+            "volunteersNeeded": 10,
+            "volunteersIds": [
+                "c114fe72-f55a-46cd-855b-95a05bf635a9",
+                "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
+                "79a3d186-b06a-4db9-9ac0-dd5ade0ff057",
+                "21ea2bbe-9f13-4e38-b7fe-6bbe90797373",
+                "155f0d66-4047-4508-afc8-f309fd6a5a96",
+                "89ae4e45-ff2b-441b-9e5a-eb42e69485dd"
+            ]
+        },
+        {
+            "id": "d7b8ea73-ba2c-4fc3-9348-9814076124bd",
+            "dateTime": "2023-01-06T15:30:00.000Z",
+            "description": "The Elboya School is looking for volunteers to teach computer programming to kids from grade 5 to 7.\n\nREQUIREMENTS:\n* Previous programming experience.\n* 4 hour commitment, from 8:30 AM to 12:30 AM.",
+            "imageUrl": "https://i.ibb.co/Th4zgqB/774aabc408a6.png",
+            "name": "Kids Programming Day",
+            "organizerId": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
+            "position": { "latitude": 51.010801915407036, "longitude": -114.07823592424393 },
+            "volunteersNeeded": 2,
+            "volunteersIds": ["c114fe72-f55a-46cd-855b-95a05bf635a9", "49dfffeb-f5ba-4771-bd85-1af18f5a34ad"]
+        }
+    ],
     "users": [
         {
             "name": {
@@ -6,8 +66,8 @@
                 "last": "Ulriksen"
             },
             "email": "ulla.ulriksen@example.com",
-            "uuid": "feb027bd-59d2-43d2-bfe3-f8c9536e91c1",
-            "cell": "(910) 862-3167"
+            "id": "feb027bd-59d2-43d2-bfe3-f8c9536e91c1",
+            "mobile": "(910) 862-3167"
         },
         {
             "name": {
@@ -15,8 +75,8 @@
                 "last": "Akyüz"
             },
             "email": "yasemin.akyuz@example.com",
-            "uuid": "21ea2bbe-9f13-4e38-b7fe-6bbe90797373",
-            "cell": "(243) 359-9759"
+            "id": "21ea2bbe-9f13-4e38-b7fe-6bbe90797373",
+            "mobile": "(243) 359-9759"
         },
         {
             "name": {
@@ -24,17 +84,17 @@
                 "last": "Zwick"
             },
             "email": "kristian.zwick@example.com",
-            "uuid": "155f0d66-4047-4508-afc8-f309fd6a5a96",
-            "cell": "(171) 946-2538"
+            "id": "155f0d66-4047-4508-afc8-f309fd6a5a96",
+            "mobile": "(171) 946-2538"
         },
         {
             "name": {
-                "first": "Andrea",
+                "first": "Andrei",
                 "last": "Cvejić"
             },
-            "email": "andrea.cvejic@example.com",
-            "uuid": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
-            "cell": "(063) 589-2999"
+            "email": "andrei.cvejic@example.com",
+            "id": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
+            "mobile": "(563) 589-2999"
         },
         {
             "name": {
@@ -42,8 +102,8 @@
                 "last": "Akşit"
             },
             "email": "elif.aksit@example.com",
-            "uuid": "1f794284-3ef7-4e52-9fdb-9bce339506ca",
-            "cell": "(636) 336-9413"
+            "id": "1f794284-3ef7-4e52-9fdb-9bce339506ca",
+            "mobile": "(636) 336-9413"
         },
         {
             "name": {
@@ -51,17 +111,17 @@
                 "last": "Van Wingerden"
             },
             "email": "sema.vanwingerden@example.com",
-            "uuid": "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
-            "cell": "(306) 805-5821"
+            "id": "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
+            "mobile": "(306) 805-5821"
         },
         {
             "name": {
-                "first": "Gissele",
+                "first": "Gisele",
                 "last": "Oliveira"
             },
-            "email": "gissele.oliveira@example.com",
-            "uuid": "c114fe72-f55a-46cd-855b-95a05bf635a9",
-            "cell": "(905) 491-1184"
+            "email": "gisele.oliveira@example.com",
+            "id": "c114fe72-f55a-46cd-855b-95a05bf635a9",
+            "mobile": "(905) 491-1184"
         },
         {
             "name": {
@@ -69,8 +129,8 @@
                 "last": "Barnett"
             },
             "email": "sara.barnett@example.com",
-            "uuid": "f41a4a80-65a4-44d8-a005-335d1898d31c",
-            "cell": "(710) 271-3339"
+            "id": "f41a4a80-65a4-44d8-a005-335d1898d31c",
+            "mobile": "(710) 271-3339"
         },
         {
             "name": {
@@ -78,8 +138,8 @@
                 "last": "Gamez"
             },
             "email": "azuma.gamez@example.com",
-            "uuid": "79a3d186-b06a-4db9-9ac0-dd5ade0ff057",
-            "cell": "(605) 964-2338"
+            "id": "79a3d186-b06a-4db9-9ac0-dd5ade0ff057",
+            "mobile": "(605) 964-2338"
         },
         {
             "name": {
@@ -87,8 +147,8 @@
                 "last": "Young"
             },
             "email": "eva.young@example.com",
-            "uuid": "cba65270-f837-4f21-9d7f-1d042154356d",
-            "cell": "(543) 905-5629"
+            "id": "cba65270-f837-4f21-9d7f-1d042154356d",
+            "mobile": "(543) 905-5629"
         }
     ]
 }
