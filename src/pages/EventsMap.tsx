@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View, Text, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
 import MapView, { EdgePadding, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
@@ -74,7 +74,6 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 style={styles.mapStyle}
                 customMapStyle={customMapStyle}
                 showsUserLocation={true}
-                showsMyLocationButton={true}
                 rotateEnabled={false}
                 toolbarEnabled={false}
                 mapPadding={mapEdgePadding}
@@ -82,14 +81,19 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 {events.value.map((volunteeringEvent) => {
                     return (
                         <Marker
-                            key={`${volunteeringEvent.name}-${volunteeringEvent.dateTime}`}
-                            image={isTeamFull(volunteeringEvent) ? mapMarkerBlue : mapMarker}
+                            key={volunteeringEvent.id}
                             coordinate={{
                                 latitude: volunteeringEvent.position.latitude,
                                 longitude: volunteeringEvent.position.longitude,
                             }}
                             onPress={(e) => handleNavigateToEventDetails(volunteeringEvent.id)}
-                        ></Marker>
+                        >
+                            <Image
+                                resizeMode="contain"
+                                style={{ width: 48, height: 54 }}
+                                source={isTeamFull(volunteeringEvent) ? mapMarkerBlue : mapMarker}
+                            />
+                        </Marker>
                     );
                 })}
             </MapView>
