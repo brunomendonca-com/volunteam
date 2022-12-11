@@ -109,13 +109,8 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                         style={styles.mapStyle}
                         customMapStyle={customMapStyle}
                     >
-                        <Marker
-                            icon={mapMarkerImg}
-                            coordinate={{
-                                latitude: 51.03,
-                                longitude: -114.093,
-                            }}
-                        />
+                        <Marker coordinate={currentEvent.position} />
+                        <Image resizeMode="contain" style={{ width: 48, height: 54 }} source={mapMarkerImg} />
                     </MapView>
                 </View>
                 <Spacer size={16} />

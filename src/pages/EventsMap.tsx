@@ -5,8 +5,8 @@ import { Feather } from '@expo/vector-icons';
 import MapView, { EdgePadding, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
 
-import mapMarker from '../images/map-marker.png';
-import mapMarkerBlue from '../images/map-marker.png';
+import mapMarkerImg from '../images/map-marker.png';
+import mapMarkerBlueImg from '../images/map-marker.png';
 import customMapStyle from '../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
@@ -91,7 +91,7 @@ export default function EventsMap(props: StackScreenProps<any>) {
                             <Image
                                 resizeMode="contain"
                                 style={{ width: 48, height: 54 }}
-                                source={isTeamFull(volunteeringEvent) ? mapMarkerBlue : mapMarker}
+                                source={isTeamFull(volunteeringEvent) ? mapMarkerBlueImg : mapMarkerImg}
                             />
                         </Marker>
                     );

@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Dimensions, Text } from 'react-native';
-
-import { useNavigation } from '@react-navigation/native';
-import MapView, {
-    Marker,
-    MapPressEvent,
-    PROVIDER_GOOGLE,
-} from 'react-native-maps';
+import { View, StyleSheet, Dimensions, Text, Image } from 'react-native';
+import MapView, { Marker, MapPressEvent, PROVIDER_GOOGLE } from 'react-native-maps';
 
 import mapMarkerImg from '../../images/map-marker.png';
 import customMapStyle from '../../../map-style.json';
@@ -40,7 +34,9 @@ export default function SelectMapPosition(props: StackScreenProps<any>) {
                 customMapStyle={customMapStyle}
             >
                 {!!position.latitude && (
-                    <Marker icon={mapMarkerImg} coordinate={position}></Marker>
+                    <Marker coordinate={position}>
+                        <Image resizeMode="contain" style={{ width: 48, height: 54 }} source={mapMarkerImg} />
+                    </Marker>
                 )}
             </MapView>
 
