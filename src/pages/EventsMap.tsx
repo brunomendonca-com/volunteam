@@ -111,7 +111,6 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 toolbarEnabled={false}
                 mapPadding={MapSettings.EDGE_PADDING}
                 onMapReady={() => {
-                    console.log('map ready!!!');
                     fitMarkersAndUserLocation;
                 }}
             >

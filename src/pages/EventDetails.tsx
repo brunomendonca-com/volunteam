@@ -1,7 +1,8 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import { call } from 'react-native-reanimated';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
 import EventInfoBox from '../components/EventInfoBox';
@@ -65,6 +66,18 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
         }
     };
 
+    const call = (phoneNumber: string) => {
+        Linking.openURL(`tel:${phoneNumber}`)
+            .then(() => null)
+            .catch(() => null);
+    };
+
+    const textMessage = (phoneNumber: string) => {
+        Linking.openURL(`sms:${phoneNumber}`)
+            .then(() => null)
+            .catch(() => null);
+    };
+
     return (
         <ScrollView style={styles.container}>
             {currentEvent && (
@@ -117,14 +130,14 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                                                 label="Call"
                                                 color="#00A3FF"
                                                 featherIconName="phone"
-                                                onPress={() => console.log('call pressed')}
+                                                onPress={() => call(organizer.mobile)}
                                             />
                                             <Spacer horizontal />
                                             <BigButton
                                                 label="Text"
                                                 color="#00A3FF"
                                                 featherIconName="message-circle"
-                                                onPress={() => console.log('text pressed')}
+                                                onPress={() => textMessage(organizer.mobile)}
                                             />
                                         </>
                                     )}
