@@ -3,7 +3,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Feather } from '@expo/vector-icons';
 import { StackScreenProps } from '@react-navigation/stack';
 import * as ImagePicker from 'expo-image-picker';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -37,15 +37,18 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     const currentUser = useContext(AuthenticationContext)?.value as User;
     const { position } = route.params as VolunteeringEventDataRouteParams;
     const { showActionSheetWithOptions } = useActionSheet();
+    const [isValid, setIsValid] = useState(false);
     const [eventFormValue, setEventFormValue] = useState<FormData>({
         name: '',
         description: '',
         volunteersNeeded: 0,
-        // If the user creates a new event with the current time, it will not be displayed in the map because
-        // the event will be in the past when the user navigates back to the map.
-        // We are adding hours to the minimum date to prevent this.
-        dateTime: addHours(new Date(), 2),
+        dateTime: new Date(),
     });
+
+    useEffect(() => {
+        const isFormValid = validateForm();
+        setIsValid(isFormValid);
+    }, [eventFormValue]);
 
     const [uploadedImage, setUploadedImage] = useState<UploadedImage>();
     const [isUploading, setIsUploading] = useState<boolean>(false);
@@ -66,19 +69,37 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     };
 
     const handleCreateEvent = () => {
-        const newEvent: VolunteeringEvent = {
-            ...eventFormValue,
-            id: uuidv4(),
-            position,
-            organizerId: currentUser?.id,
-            volunteersIds: [],
-            imageUrl: uploadedImage?.url,
-        };
-        setIsUploading(true);
-        api.createEvent(newEvent).then(() => {
-            setIsUploading(false);
-            navigation.navigate('EventsMap');
-        });
+        if (isValid) {
+            const newEvent: VolunteeringEvent = {
+                ...eventFormValue,
+                id: uuidv4(),
+                position,
+                organizerId: currentUser?.id,
+                volunteersIds: [],
+                imageUrl: uploadedImage?.url,
+            };
+            setIsUploading(true);
+            api.createEvent(newEvent).then(() => {
+                setIsUploading(false);
+                navigation.navigate('EventsMap');
+            });
+        }
+    };
+
+    const validateForm = (): boolean => {
+        const { name, description, volunteersNeeded, dateTime } = eventFormValue;
+        return (
+            // name should have at least 5 characters
+            name.length > 5 &&
+            // description should have at least 30 characters
+            description.length > 30 &&
+            // volunteers needed should be at least 1
+            volunteersNeeded > 0 &&
+            // If the user creates a new event with the current time, it will not be displayed in the map because
+            // the event will be in the past when the user navigates back to the map.
+            // dateTime should be at least 2 hours ahead
+            dateTime > addHours(new Date(), 2)
+        );
     };
 
     const handleSelectImages = async () => {
@@ -274,7 +295,14 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                     <Feather name="plus" size={24} color="#00A3FF80" />
                 </TouchableOpacity>
             )}
-            <BigButton onPress={handleCreateEvent} label="Save" color="#00A3FF" />
+            <BigButton
+                onPress={() => {
+                    if (isValid) handleCreateEvent;
+                }}
+                disabled={!isValid}
+                label="Save"
+                color="#00A3FF"
+            />
         </KeyboardAwareScrollView>
     );
 }
