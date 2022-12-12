@@ -26,7 +26,8 @@
             "volunteersIds": [
                 "c114fe72-f55a-46cd-855b-95a05bf635a9",
                 "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
-                "79a3d186-b06a-4db9-9ac0-dd5ade0ff057"
+                "79a3d186-b06a-4db9-9ac0-dd5ade0ff057",
+                "89ae4e45-ff2b-441b-9e5a-eb42e69485dd"
             ]
         },
         {
@@ -43,8 +44,7 @@
                 "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
                 "79a3d186-b06a-4db9-9ac0-dd5ade0ff057",
                 "21ea2bbe-9f13-4e38-b7fe-6bbe90797373",
-                "155f0d66-4047-4508-afc8-f309fd6a5a96",
-                "89ae4e45-ff2b-441b-9e5a-eb42e69485dd"
+                "155f0d66-4047-4508-afc8-f309fd6a5a96"
             ]
         },
         {
@@ -55,7 +55,7 @@
             "name": "Kids Programming Day",
             "organizerId": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
             "position": { "latitude": 51.010801915407036, "longitude": -114.07823592424393 },
-            "volunteersNeeded": 4,
+            "volunteersNeeded": 2,
             "volunteersIds": ["c114fe72-f55a-46cd-855b-95a05bf635a9", "49dfffeb-f5ba-4771-bd85-1af18f5a34ad"]
         }
     ],

@@ -7,16 +7,20 @@ import * as Location from 'expo-location';
 
 import mapMarkerImg from '../images/map-marker.png';
 import mapMarkerBlueImg from '../images/map-marker-blue.png';
+import mapMarkerGreyImg from '../images/map-marker-grey.png';
 import customMapStyle from '../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
 import { VolunteeringEventsContext } from '../context/EventsContext';
 import { VolunteeringEvent } from '../types/VolunteeringEvent';
 import * as MapSettings from '../constants/MapSettings';
+import { AuthenticationContext } from '../context/AuthenticationContext';
 
 export default function EventsMap(props: StackScreenProps<any>) {
     const { navigation } = props;
     const events = useContext(VolunteeringEventsContext);
+    const currentUser = useContext(AuthenticationContext).value;
+
     const mapViewRef = useRef<MapView>(null);
 
     const [userLocation, setUserLocation] = useState<LatLng>(MapSettings.DEFAULT_POSITION);
@@ -59,8 +63,22 @@ export default function EventsMap(props: StackScreenProps<any>) {
         mapViewRef.current?.fitToCoordinates(eventsAndUserLocations, { edgePadding: mapEdgePadding, animated: false });
     };
 
-    const isTeamFull = (event: VolunteeringEvent) => {
+    const isEventFull = (event: VolunteeringEvent) => {
         return event.volunteersIds.length === event.volunteersNeeded;
+    };
+
+    const userHasApplied = (event: VolunteeringEvent) => {
+        return event.volunteersIds.includes(currentUser?.id as string);
+    };
+
+    const getMarkerImg = (event: VolunteeringEvent) => {
+        if (isEventFull(event)) {
+            return mapMarkerGreyImg;
+        } else if (userHasApplied(event)) {
+            return mapMarkerBlueImg;
+        } else {
+            return mapMarkerImg;
+        }
     };
 
     return (
@@ -91,7 +109,7 @@ export default function EventsMap(props: StackScreenProps<any>) {
                             <Image
                                 resizeMode="contain"
                                 style={{ width: 48, height: 54 }}
-                                source={isTeamFull(volunteeringEvent) ? mapMarkerBlueImg : mapMarkerImg}
+                                source={getMarkerImg(volunteeringEvent)}
                             />
                         </Marker>
                     );

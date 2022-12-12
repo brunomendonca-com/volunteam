@@ -30,7 +30,6 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
         caching
             .getFromNetworkFirst(currentEvent.organizerId, api.getUserDetails(currentEvent.organizerId))
             .then((response) => {
-                console.log(response.data);
                 if (response.status === 200) {
                     setOrganizer(response.data);
                 }
