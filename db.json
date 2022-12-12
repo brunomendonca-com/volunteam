@@ -88,19 +88,19 @@
         },
         {
             "name": {
-                "first": "Christian",
-                "last": "Zwick"
+                "first": "Luigi",
+                "last": "Carluccio"
             },
-            "email": "Christian.zwick@example.com",
+            "email": "luigi@carluccio.it",
             "id": "155f0d66-4047-4508-afc8-f309fd6a5a96",
             "mobile": "(171) 946-2538"
         },
         {
             "name": {
-                "first": "Andrei",
-                "last": "Cvejić"
+                "first": "John",
+                "last": "Silva"
             },
-            "email": "andrei.cvejic@example.com",
+            "email": "john@silva.com.br",
             "id": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
             "mobile": "(563) 589-2999"
         },
