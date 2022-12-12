@@ -1,5 +1,6 @@
 import Constants from 'expo-constants';
-import { Share, ShareAction } from 'react-native';
+import { Platform, Share, ShareAction } from 'react-native';
+import { LatLng } from 'react-native-maps';
 
 export const formatBytes = (bytes: number, decimals = 2): string => {
     if (!+bytes) return '0 Bytes';
@@ -77,4 +78,11 @@ export const openShareActionsMenu = async () => {
         if (error instanceof Error) alert(error.message);
         else alert('Unknown Error');
     }
+};
+
+export const getMapsUrl = (coordinates: LatLng): string => {
+    const { latitude, longitude } = coordinates;
+    const latLng = `${latitude},${longitude}`;
+    const label = 'Custom Label';
+    return Platform.OS === 'ios' ? `maps:0,0?q=${label}@${latLng}` : `geo:0,0?q=${latLng}(${label})`;
 };

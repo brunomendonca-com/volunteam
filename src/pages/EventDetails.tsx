@@ -1,7 +1,7 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
-import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { call } from 'react-native-reanimated';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
@@ -14,7 +14,7 @@ import * as api from '../services/api';
 import * as caching from '../services/caching';
 import { User } from '../types/User';
 import { VolunteeringEvent, VolunteeringStatus } from '../types/VolunteeringEvent';
-import { openShareActionsMenu } from '../utils';
+import { getMapsUrl, openShareActionsMenu } from '../utils';
 
 interface EventDetailsRouteParams {
     currentEventId: string;
@@ -74,6 +74,12 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
 
     const textMessage = (phoneNumber: string) => {
         Linking.openURL(`sms:${phoneNumber}`)
+            .then(() => null)
+            .catch(() => null);
+    };
+
+    const openMapsApp = (coordinates: LatLng) => {
+        Linking.openURL(getMapsUrl(coordinates))
             .then(() => null)
             .catch(() => null);
     };
@@ -186,10 +192,10 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                         </View>
                         <Spacer size={16} />
                         <BigButton
-                            label="Check routes on Google Maps"
+                            label="Get Directions to Event"
                             color="#4D6F80"
                             featherIconName="map-pin"
-                            onPress={() => console.log('check routes pressed')}
+                            onPress={() => openMapsApp(currentEvent.position)}
                         />
                     </View>
                 </>
