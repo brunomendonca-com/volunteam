@@ -22,8 +22,6 @@ export default function Routes() {
     const [authenticatedUser, setAuthenticatedUser] = useState<User>();
 
     useEffect(() => {
-        caching.getFromNetworkFirst('events', api.getFutureEvents()).then((events) => setEvents(events));
-
         // TODO get authenticated user from login page
         setAuthenticatedUser({
             name: {
