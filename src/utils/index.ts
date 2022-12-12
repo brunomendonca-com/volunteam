@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { Share, ShareAction } from 'react-native';
 
 export const formatBytes = (bytes: number, decimals = 2): string => {
     if (!+bytes) return '0 Bytes';
@@ -44,5 +45,25 @@ export const getEnvironentVariable = (variableName: string) => {
         }
     } catch (e) {
         console.warn(e);
+    }
+};
+
+export const openShareActionsMenu = async () => {
+    try {
+        const result: ShareAction = await Share.share({
+            message: 'volunteam app | Find opportunities to help people in your area',
+        });
+        if (result.action === Share.sharedAction) {
+            if (result.activityType) {
+                // shared with activity type of result.activityType
+            } else {
+                // shared
+            }
+        } else if (result.action === Share.dismissedAction) {
+            // dismissed
+        }
+    } catch (error) {
+        if (error instanceof Error) alert(error.message);
+        else alert('Unknown Error');
     }
 };

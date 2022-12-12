@@ -7,38 +7,25 @@ import mapMarkerImg from '../images/map-marker.png';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
 import Spacer from '../components/Spacer';
-import { VolunteeringEvent } from '../types/VolunteeringEvent';
+import { VolunteeringEvent, VolunteeringStatus } from '../types/VolunteeringEvent';
 import { StackScreenProps } from '@react-navigation/stack';
-import { formatAMPM } from '../utils';
+import { formatAMPM, openShareActionsMenu } from '../utils';
 import { VolunteeringEventsContext } from '../context/EventsContext';
+import { User } from '../types/User';
+import { AuthenticationContext } from '../context/AuthenticationContext';
 
 interface EventDetailsRouteParams {
     currentEventId: string;
 }
 export default function EventDetails({ navigation, route }: StackScreenProps<any>) {
     const { currentEventId } = route.params as EventDetailsRouteParams;
-    const events = useContext(VolunteeringEventsContext);
-    const currentEvent = events.value.find((event) => event.id === currentEventId) as VolunteeringEvent;
-    console.log('current event:', currentEvent);
-    const onShare = async () => {
-        try {
-            const result: ShareAction = await Share.share({
-                message: 'volunteam app | Find opportunities to help people in your area',
-            });
-            if (result.action === Share.sharedAction) {
-                if (result.activityType) {
-                    // shared with activity type of result.activityType
-                } else {
-                    // shared
-                }
-            } else if (result.action === Share.dismissedAction) {
-                // dismissed
-            }
-        } catch (error) {
-            if (error instanceof Error) alert(error.message);
-            else alert('Unknown Error');
-        }
-    };
+    const events = useContext(VolunteeringEventsContext).value;
+    const currentUser = useContext(AuthenticationContext).value as User;
+    const currentEvent = events.find((event) => event.id === currentEventId) as VolunteeringEvent;
+
+    console.log('currentUser:', currentUser);
+    const eventStatus = getCurrentEventStatus(currentEvent, currentUser);
+    console.log('eventStatus:', VolunteeringStatus[eventStatus]);
 
     return (
         <ScrollView style={styles.container}>
@@ -79,7 +66,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                 </View>
                 <Spacer size={16} />
                 <View style={styles.eventInfoRow}>
-                    <BigButton label="Share" color="#00A3FF" featherIconName="share-2" onPress={onShare} />
+                    <BigButton label="Share" color="#00A3FF" featherIconName="share-2" onPress={openShareActionsMenu} />
                     <Spacer horizontal />
                     <BigButton
                         label="Volunteer"
@@ -305,3 +292,13 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
 });
+
+const getCurrentEventStatus = (currentEvent: VolunteeringEvent, currentUser: User): VolunteeringStatus => {
+    if (currentEvent.volunteersNeeded === currentEvent.volunteersIds.length) {
+        return VolunteeringStatus.FULL;
+    } else if (currentEvent.volunteersIds.includes(currentUser.id)) {
+        return VolunteeringStatus.APPLIED;
+    } else {
+        return VolunteeringStatus.NOT_APPLIED;
+    }
+};

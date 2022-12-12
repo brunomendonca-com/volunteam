@@ -6,7 +6,7 @@ import mapMarkerImg from '../../images/map-marker.png';
 import customMapStyle from '../../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
-import * as MapSettings from '../../utils/MapSettings';
+import * as MapSettings from '../../constants/MapSettings';
 
 interface SelectMapPositionRouteParams {
     userLocation: LatLng;

@@ -6,13 +6,13 @@ import MapView, { EdgePadding, LatLng, Marker, PROVIDER_GOOGLE } from 'react-nat
 import * as Location from 'expo-location';
 
 import mapMarkerImg from '../images/map-marker.png';
-import mapMarkerBlueImg from '../images/map-marker.png';
+import mapMarkerBlueImg from '../images/map-marker-blue.png';
 import customMapStyle from '../../map-style.json';
 import { RectButton } from 'react-native-gesture-handler';
 import { StackScreenProps } from '@react-navigation/stack';
 import { VolunteeringEventsContext } from '../context/EventsContext';
 import { VolunteeringEvent } from '../types/VolunteeringEvent';
-import * as MapSettings from '../utils/MapSettings';
+import * as MapSettings from '../constants/MapSettings';
 
 export default function EventsMap(props: StackScreenProps<any>) {
     const { navigation } = props;
@@ -71,6 +71,7 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 initialRegion={MapSettings.DEFAULT_REGION}
                 style={styles.mapStyle}
                 customMapStyle={customMapStyle}
+                showsMyLocationButton={false}
                 showsUserLocation={true}
                 rotateEnabled={false}
                 toolbarEnabled={false}

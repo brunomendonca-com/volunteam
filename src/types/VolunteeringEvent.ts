@@ -11,3 +11,9 @@ export interface VolunteeringEvent {
     volunteersIds: string[];
     imageUrl?: string;
 }
+
+export enum VolunteeringStatus {
+    NOT_APPLIED,
+    APPLIED,
+    FULL,
+}

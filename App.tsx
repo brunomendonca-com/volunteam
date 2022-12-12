@@ -16,29 +16,6 @@ import { VolunteeringEventsContext, VolunteeringEventsContextObject } from './sr
 import { VolunteeringEvent } from './src/types/VolunteeringEvent';
 
 export default function App() {
-    const [events, setEvents] = useState<VolunteeringEvent[]>([]);
-
-    useEffect(() => {
-        const currentDateTime = new Date(Date.now());
-        api.get('/events', { params: { dateTime_gte: currentDateTime } })
-            .then((response) => {
-                if (response.status === 200) {
-                    // TODO parse date from response
-                    setEvents(
-                        response.data.map((event: VolunteeringEvent): VolunteeringEvent => {
-                            return { ...event, dateTime: new Date(event.dateTime) };
-                        })
-                    );
-                }
-            })
-            .catch((error) => console.warn(error));
-    }, []);
-
-    const volunteeringEventsContextObj: VolunteeringEventsContextObject = {
-        value: events,
-        setValue: setEvents,
-    };
-
     const [fontsLoaded] = useFonts({
         Nunito_400Regular,
         Nunito_600SemiBold,
@@ -53,9 +30,7 @@ export default function App() {
             <>
                 <StatusBar backgroundColor="transparent" translucent barStyle="dark-content" />
                 <ActionSheetProvider>
-                    <VolunteeringEventsContext.Provider value={volunteeringEventsContextObj}>
-                        <AppStack />
-                    </VolunteeringEventsContext.Provider>
+                    <AppStack />
                 </ActionSheetProvider>
             </>
         );

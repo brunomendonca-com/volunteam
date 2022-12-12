@@ -4,6 +4,6 @@ export interface User {
         last: string;
     };
     email: string;
-    uuid: string;
-    cell: string;
+    id: string;
+    mobile: string;
 }

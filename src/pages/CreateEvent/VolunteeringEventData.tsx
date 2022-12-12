@@ -150,7 +150,6 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                         size,
                         url,
                     };
-                    console.warn('newUploadedImage: ', newUploadedImage);
                     setUploadedImage(newUploadedImage);
                     setIsUploading(false);
                 })
