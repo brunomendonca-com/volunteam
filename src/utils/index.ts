@@ -24,6 +24,12 @@ export const formatAMPM = (date: Date): string => {
     return strTime;
 };
 
+export const addHours = (dateTime: Date, hoursToAdd: number) => {
+    const milisecondsToAdd = hoursToAdd * 60 * 60 * 1000;
+    const newDate = new Date(dateTime);
+    return new Date(newDate.setTime(newDate.getTime() + milisecondsToAdd));
+};
+
 export const updateDateWithNewTime = (existingDate: Date, newTime: Date): Date => {
     const newDate = new Date(new Date(existingDate).setHours(newTime.getHours(), newTime.getMinutes(), 0, 0));
     return newDate;

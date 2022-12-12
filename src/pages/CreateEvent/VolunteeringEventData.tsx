@@ -20,7 +20,7 @@ import * as imageApi from '../../services/imageApi';
 import { UploadedImage } from '../../types/UploadedImage';
 import { User } from '../../types/User';
 import { VolunteeringEvent } from '../../types/VolunteeringEvent';
-import { formatBytes, updateDateWithNewTime } from '../../utils';
+import { addHours, formatBytes, updateDateWithNewTime } from '../../utils';
 
 interface VolunteeringEventDataRouteParams {
     position: LatLng;
@@ -41,7 +41,10 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
         name: '',
         description: '',
         volunteersNeeded: 0,
-        dateTime: new Date(),
+        // If the user creates a new event with the current time, it will not be displayed in the map because
+        // the event will be in the past when the user navigates back to the map.
+        // We are adding hours to the minimum date to prevent this.
+        dateTime: addHours(new Date(), 2),
     });
 
     const [uploadedImage, setUploadedImage] = useState<UploadedImage>();
@@ -230,7 +233,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
             <DateTimePickerModal
                 isVisible={datePickerVisibility}
                 mode="date"
-                minimumDate={new Date()}
+                minimumDate={eventFormValue.dateTime}
                 onConfirm={onDateSelected}
                 onCancel={() => setDatePickerVisibility(false)}
             />

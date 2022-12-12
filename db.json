@@ -19,7 +19,7 @@
             "description": "The Memorial Park Library is looking for volunteers to help setting up the stage for our talented local artists.\n\nAny previous event producing experience is greatly appreciated.",
             "imageUrl": "https://i.ibb.co/N3DqYK9/d01296f77464.jpg",
             "name": "Downtown Vibe Live Music",
-            "organizerId": "cba65270-f837-4f21-9d7f-1d042154356d",
+            "organizerId": "155f0d66-4047-4508-afc8-f309fd6a5a96",
             "position": {
                 "latitude": 51.04112,
                 "longitude": -114.069325
@@ -58,7 +58,7 @@
             "description": "The Elboya School is looking for volunteers to teach computer programming to kids from grade 5 to 7.\n\nREQUIREMENTS:\n* Previous programming experience.\n* 4 hour commitment, from 8:30 AM to 12:30 AM.",
             "imageUrl": "https://i.ibb.co/Th4zgqB/774aabc408a6.png",
             "name": "Kids Programming Day",
-            "organizerId": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
+            "organizerId": "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
             "position": {
                 "latitude": 51.010801915407036,
                 "longitude": -114.07823592424393
@@ -88,10 +88,10 @@
         },
         {
             "name": {
-                "first": "Kristian",
+                "first": "Christian",
                 "last": "Zwick"
             },
-            "email": "kristian.zwick@example.com",
+            "email": "Christian.zwick@example.com",
             "id": "155f0d66-4047-4508-afc8-f309fd6a5a96",
             "mobile": "(171) 946-2538"
         },
@@ -115,10 +115,10 @@
         },
         {
             "name": {
-                "first": "Sema",
+                "first": "Anne",
                 "last": "Van Wingerden"
             },
-            "email": "sema.vanwingerden@example.com",
+            "email": "anne.vanwingerden@example.com",
             "id": "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
             "mobile": "(306) 805-5821"
         },
