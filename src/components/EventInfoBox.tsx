@@ -7,9 +7,9 @@ import { formatAMPM } from '../utils';
 interface EventInfoBoxProps {
     dateTimeInfo?: Date;
     volunteeringInfo?: {
-        status: VolunteeringStatus;
-        volunteersCount: number;
-        volunteersNeeded: number;
+        status: VolunteeringStatus | undefined;
+        volunteersCount: number | undefined;
+        volunteersNeeded: number | undefined;
     };
 }
 

@@ -21,126 +21,166 @@ interface EventDetailsRouteParams {
 export default function EventDetails({ navigation, route }: StackScreenProps<any>) {
     const { currentEventId } = route.params as EventDetailsRouteParams;
     const [organizer, setOrganizer] = useState<User>();
-    const events = useContext(VolunteeringEventsContext)?.value as VolunteeringEvent[];
+    const [currentEvent, setCurrentEvent] = useState<VolunteeringEvent>();
+    const [currentStatus, setCurrentStatus] = useState<VolunteeringStatus>();
+    const eventsContext = useContext(VolunteeringEventsContext);
+    const events = eventsContext?.value as VolunteeringEvent[];
     const currentUser = useContext(AuthenticationContext)?.value as User;
-    const currentEvent = events.find((event) => event.id === currentEventId) as VolunteeringEvent;
-    const currentStatus = getCurrentEventStatus(currentEvent, currentUser);
 
     useEffect(() => {
-        caching
-            .getFromNetworkFirst(currentEvent.organizerId, api.getUserDetails(currentEvent.organizerId))
+        setCurrentEvent(events.find((event) => event.id === currentEventId));
+    }, []);
+
+    useEffect(() => {
+        if (currentEvent) {
+            caching
+                .getFromNetworkFirst(currentEvent.organizerId, api.getUserDetails(currentEvent.organizerId))
+                .then((response) => {
+                    if (response.status === 200) {
+                        setOrganizer(response.data);
+                    }
+                })
+                .catch((error) => console.warn(error));
+
+            const newStatus = getCurrentEventStatus(currentEvent, currentUser);
+            setCurrentStatus(newStatus);
+        }
+    }, [currentEvent]);
+
+    const onVolunteer = () => {
+        api.updateVolunteers(currentEvent as VolunteeringEvent, currentUser.id)
             .then((response) => {
-                if (response.status === 200) {
-                    setOrganizer(response.data);
-                }
+                setCurrentEvent(response.data);
             })
             .catch((error) => console.warn(error));
-    }, []);
+    };
+
+    const getCurrentEventStatus = (currentEvent: VolunteeringEvent, currentUser: User): VolunteeringStatus => {
+        if (currentEvent.volunteersIds.includes(currentUser.id)) {
+            return VolunteeringStatus.APPLIED;
+        } else if (currentEvent.volunteersNeeded === currentEvent.volunteersIds.length) {
+            return VolunteeringStatus.FULL;
+        } else {
+            return VolunteeringStatus.NOT_APPLIED;
+        }
+    };
 
     return (
         <ScrollView style={styles.container}>
-            {currentEvent.imageUrl && (
-                <View style={styles.imagesContainer}>
-                    <Image
-                        style={styles.image}
-                        source={{
-                            uri: currentEvent.imageUrl,
-                        }}
-                    />
-                </View>
-            )}
-
-            <View style={styles.detailsContainer}>
-                <Text style={styles.title}>{currentEvent.name}</Text>
-                <Text style={styles.organizer}>{`organized by ${organizer?.name.first} ${organizer?.name.last}`}</Text>
-                <Text style={styles.description}>{currentEvent.description}</Text>
-                <Spacer size={24} />
-                <View style={styles.eventInfoRow}>
-                    <EventInfoBox dateTimeInfo={currentEvent.dateTime} />
-                    <Spacer horizontal />
-                    <EventInfoBox
-                        volunteeringInfo={{
-                            status: currentStatus,
-                            volunteersCount: currentEvent.volunteersIds.length,
-                            volunteersNeeded: currentEvent.volunteersNeeded,
-                        }}
-                    />
-                </View>
-                <Spacer size={16} />
-                {currentStatus !== VolunteeringStatus.FULL && (
-                    <>
-                        <View style={styles.eventInfoRow}>
-                            <BigButton
-                                label="Share"
-                                color="#00A3FF"
-                                featherIconName="share-2"
-                                onPress={openShareActionsMenu}
+            {currentEvent && (
+                <>
+                    {currentEvent.imageUrl && (
+                        <View style={styles.imagesContainer}>
+                            <Image
+                                style={styles.image}
+                                source={{
+                                    uri: currentEvent.imageUrl,
+                                }}
                             />
-                            {currentStatus === VolunteeringStatus.APPLIED && (
-                                <>
-                                    <Spacer horizontal />
-                                    <BigButton
-                                        label="Call"
-                                        color="#00A3FF"
-                                        featherIconName="phone"
-                                        onPress={() => console.log('call pressed')}
-                                    />
-                                    <Spacer horizontal />
-                                    <BigButton
-                                        label="Text"
-                                        color="#00A3FF"
-                                        featherIconName="message-circle"
-                                        onPress={() => console.log('text pressed')}
-                                    />
-                                </>
-                            )}
-                            {currentStatus === VolunteeringStatus.NOT_APPLIED && (
-                                <>
-                                    <Spacer horizontal />
-                                    <BigButton
-                                        label="Volunteer"
-                                        color="#FF8700"
-                                        featherIconName="plus"
-                                        onPress={() => console.log('volunteer pressed')}
-                                    />
-                                </>
-                            )}
                         </View>
+                    )}
+
+                    <View style={styles.detailsContainer}>
+                        <Text style={styles.title}>{currentEvent.name}</Text>
+                        {organizer && (
+                            <Text
+                                style={styles.organizer}
+                            >{`organized by ${organizer.name.first} ${organizer.name.last}`}</Text>
+                        )}
+                        <Text style={styles.description}>{currentEvent.description}</Text>
                         <Spacer size={24} />
-                    </>
-                )}
+                        <View style={styles.eventInfoRow}>
+                            <EventInfoBox dateTimeInfo={currentEvent.dateTime} />
+                            <Spacer horizontal />
+                            <EventInfoBox
+                                volunteeringInfo={{
+                                    status: currentStatus,
+                                    volunteersCount: currentEvent.volunteersIds.length,
+                                    volunteersNeeded: currentEvent.volunteersNeeded,
+                                }}
+                            />
+                        </View>
+                        <Spacer size={16} />
+                        {currentStatus !== VolunteeringStatus.FULL && (
+                            <>
+                                <View style={styles.eventInfoRow}>
+                                    <BigButton
+                                        label="Share"
+                                        color="#00A3FF"
+                                        featherIconName="share-2"
+                                        onPress={openShareActionsMenu}
+                                    />
+                                    {currentStatus === VolunteeringStatus.APPLIED && organizer?.mobile && (
+                                        <>
+                                            <Spacer horizontal />
+                                            <BigButton
+                                                label="Call"
+                                                color="#00A3FF"
+                                                featherIconName="phone"
+                                                onPress={() => console.log('call pressed')}
+                                            />
+                                            <Spacer horizontal />
+                                            <BigButton
+                                                label="Text"
+                                                color="#00A3FF"
+                                                featherIconName="message-circle"
+                                                onPress={() => console.log('text pressed')}
+                                            />
+                                        </>
+                                    )}
+                                    {currentStatus === VolunteeringStatus.NOT_APPLIED && (
+                                        <>
+                                            <Spacer horizontal />
+                                            <BigButton
+                                                label="Volunteer"
+                                                color="#FF8700"
+                                                featherIconName="plus"
+                                                onPress={onVolunteer}
+                                            />
+                                        </>
+                                    )}
+                                </View>
+                                <Spacer size={24} />
+                            </>
+                        )}
 
-                <View style={styles.horizontalDivider} />
-                <Spacer size={24} />
+                        <View style={styles.horizontalDivider} />
+                        <Spacer size={24} />
 
-                <View style={styles.mapContainer}>
-                    <MapView
-                        provider={PROVIDER_GOOGLE}
-                        initialRegion={{
-                            ...currentEvent.position,
-                            latitudeDelta: 0.004,
-                            longitudeDelta: 0.004,
-                        }}
-                        zoomEnabled={false}
-                        pitchEnabled={false}
-                        scrollEnabled={false}
-                        rotateEnabled={false}
-                        style={styles.mapStyle}
-                        customMapStyle={customMapStyle}
-                    >
-                        <Marker coordinate={currentEvent.position}>
-                            <Image resizeMode="contain" style={{ width: 48, height: 54 }} source={mapMarkerImg} />
-                        </Marker>
-                    </MapView>
-                </View>
-                <Spacer size={16} />
-                <BigButton
-                    label="Check routes on Google Maps"
-                    color="#4D6F80"
-                    featherIconName="map-pin"
-                    onPress={() => console.log('check routes pressed')}
-                />
-            </View>
+                        <View style={styles.mapContainer}>
+                            <MapView
+                                provider={PROVIDER_GOOGLE}
+                                initialRegion={{
+                                    ...currentEvent.position,
+                                    latitudeDelta: 0.004,
+                                    longitudeDelta: 0.004,
+                                }}
+                                zoomEnabled={false}
+                                pitchEnabled={false}
+                                scrollEnabled={false}
+                                rotateEnabled={false}
+                                style={styles.mapStyle}
+                                customMapStyle={customMapStyle}
+                            >
+                                <Marker coordinate={currentEvent.position}>
+                                    <Image
+                                        resizeMode="contain"
+                                        style={{ width: 48, height: 54 }}
+                                        source={mapMarkerImg}
+                                    />
+                                </Marker>
+                            </MapView>
+                        </View>
+                        <Spacer size={16} />
+                        <BigButton
+                            label="Check routes on Google Maps"
+                            color="#4D6F80"
+                            featherIconName="map-pin"
+                            onPress={() => console.log('check routes pressed')}
+                        />
+                    </View>
+                </>
+            )}
         </ScrollView>
     );
 }
@@ -282,13 +322,3 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
 });
-
-const getCurrentEventStatus = (currentEvent: VolunteeringEvent, currentUser: User): VolunteeringStatus => {
-    if (currentEvent.volunteersNeeded === currentEvent.volunteersIds.length) {
-        return VolunteeringStatus.FULL;
-    } else if (currentEvent.volunteersIds.includes(currentUser.id)) {
-        return VolunteeringStatus.APPLIED;
-    } else {
-        return VolunteeringStatus.NOT_APPLIED;
-    }
-};

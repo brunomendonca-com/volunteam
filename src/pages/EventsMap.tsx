@@ -83,15 +83,15 @@ export default function EventsMap(props: StackScreenProps<any>) {
         return event.volunteersIds.length === event.volunteersNeeded;
     };
 
-    const userHasApplied = (event: VolunteeringEvent) => {
+    const userHasAppliedToEvent = (event: VolunteeringEvent) => {
         return event.volunteersIds.includes(currentUser?.id as string);
     };
 
     const getMarkerImg = (event: VolunteeringEvent) => {
-        if (isEventFull(event)) {
-            return mapMarkerGreyImg;
-        } else if (userHasApplied(event)) {
+        if (userHasAppliedToEvent(event)) {
             return mapMarkerBlueImg;
+        } else if (isEventFull(event)) {
+            return mapMarkerGreyImg;
         } else {
             return mapMarkerImg;
         }
