@@ -3,9 +3,7 @@ import { VolunteeringEvent } from '../types/VolunteeringEvent';
 
 export type VolunteeringEventsContextObject = {
     value: VolunteeringEvent[];
-    setValue?: (newValue: VolunteeringEvent[]) => void;
+    setValue: (newValue: VolunteeringEvent[]) => void;
 };
 
-export const VolunteeringEventsContext = createContext<VolunteeringEventsContextObject>({
-    value: [],
-});
+export const VolunteeringEventsContext = createContext<VolunteeringEventsContextObject | null>(null);

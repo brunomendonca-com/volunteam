@@ -1,25 +1,30 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
 import { Feather } from '@expo/vector-icons';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 
-import MapView, { EdgePadding, LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import * as Location from 'expo-location';
+import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 
-import mapMarkerImg from '../images/map-marker.png';
-import mapMarkerBlueImg from '../images/map-marker-blue.png';
-import mapMarkerGreyImg from '../images/map-marker-grey.png';
-import customMapStyle from '../../map-style.json';
-import { RectButton } from 'react-native-gesture-handler';
+import { useFocusEffect } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
-import { VolunteeringEventsContext } from '../context/EventsContext';
-import { VolunteeringEvent } from '../types/VolunteeringEvent';
+import { RectButton } from 'react-native-gesture-handler';
+import customMapStyle from '../../map-style.json';
 import * as MapSettings from '../constants/MapSettings';
 import { AuthenticationContext } from '../context/AuthenticationContext';
+import { VolunteeringEventsContext } from '../context/EventsContext';
+import mapMarkerBlueImg from '../images/map-marker-blue.png';
+import mapMarkerGreyImg from '../images/map-marker-grey.png';
+import mapMarkerImg from '../images/map-marker.png';
+import { VolunteeringEvent } from '../types/VolunteeringEvent';
+import * as api from '../services/api';
+import * as caching from '../services/caching';
+import { User } from '../types/User';
 
 export default function EventsMap(props: StackScreenProps<any>) {
     const { navigation } = props;
-    const events = useContext(VolunteeringEventsContext);
-    const currentUser = useContext(AuthenticationContext).value;
+    const eventsContext = useContext(VolunteeringEventsContext);
+    const events = eventsContext?.value as VolunteeringEvent[];
+    const currentUser = useContext(AuthenticationContext)?.value as User;
 
     const mapViewRef = useRef<MapView>(null);
 
@@ -45,9 +50,17 @@ export default function EventsMap(props: StackScreenProps<any>) {
         })();
     }, []);
 
+    useFocusEffect(
+        useCallback(() => {
+            caching
+                .getFromNetworkFirst('events', api.getFutureEvents())
+                .then((newEvents) => eventsContext?.setValue(newEvents));
+        }, [])
+    );
+
     useEffect(() => {
         fitMarkersAndUserLocation();
-    }, [userLocation]);
+    }, [userLocation, events]);
 
     const handleNavigateToCreateEvent = () => {
         navigation.navigate('SelectMapPosition', { userLocation });
@@ -58,9 +71,12 @@ export default function EventsMap(props: StackScreenProps<any>) {
     };
 
     const fitMarkersAndUserLocation = () => {
-        const eventsAndUserLocations = events.value.map((event) => event.position);
-        eventsAndUserLocations.push(userLocation);
-        mapViewRef.current?.fitToCoordinates(eventsAndUserLocations, { edgePadding: mapEdgePadding, animated: false });
+        const eventsAndUserLocations = events.map((event) => event.position);
+        eventsAndUserLocations?.push(userLocation);
+        mapViewRef.current?.fitToCoordinates(eventsAndUserLocations, {
+            edgePadding: MapSettings.EDGE_PADDING,
+            animated: false,
+        });
     };
 
     const isEventFull = (event: VolunteeringEvent) => {
@@ -93,10 +109,13 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 showsUserLocation={true}
                 rotateEnabled={false}
                 toolbarEnabled={false}
-                mapPadding={mapEdgePadding}
-                onMapReady={fitMarkersAndUserLocation}
+                mapPadding={MapSettings.EDGE_PADDING}
+                onMapReady={() => {
+                    console.log('map ready!!!');
+                    fitMarkersAndUserLocation;
+                }}
             >
-                {events.value.map((volunteeringEvent) => {
+                {events.map((volunteeringEvent) => {
                     return (
                         <Marker
                             key={volunteeringEvent.id}
@@ -118,22 +137,15 @@ export default function EventsMap(props: StackScreenProps<any>) {
 
             <View style={styles.footer}>
                 <Text style={styles.footerText}>
-                    {events.value.length ? `${events.value.length} event(s) found` : `No events found`}
+                    {events.length ? `${events.length} event(s) found` : `No events found`}
                 </Text>
-                <RectButton style={styles.createvent} onPress={handleNavigateToCreateEvent}>
+                <RectButton style={styles.createEvent} onPress={handleNavigateToCreateEvent}>
                     <Feather name="plus" size={20} color="#FFF" />
                 </RectButton>
             </View>
         </View>
     );
 }
-
-const mapEdgePadding: EdgePadding = {
-    top: 64,
-    right: 16,
-    bottom: 104,
-    left: 16,
-};
 
 const styles = StyleSheet.create({
     container: {
@@ -170,7 +182,7 @@ const styles = StyleSheet.create({
         color: '#8fa7b3',
     },
 
-    createvent: {
+    createEvent: {
         width: 56,
         height: 56,
         backgroundColor: '#00A3FF',

@@ -1,4 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
+import { VolunteeringEvent } from '../types/VolunteeringEvent';
 import { parseDateFieldFromJSONResponse } from '../utils';
 
 const api = axios.create({
@@ -27,4 +28,8 @@ export const getFutureEvents = (): Promise<any> => {
 
 export const getUserDetails = (userId: string): Promise<AxiosResponse> => {
     return api.get(`/users/${userId}`);
+};
+
+export const createEvent = (event: VolunteeringEvent): Promise<AxiosResponse> => {
+    return api.post(`/events`, event);
 };

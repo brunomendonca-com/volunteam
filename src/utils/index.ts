@@ -25,9 +25,7 @@ export const formatAMPM = (date: Date): string => {
 };
 
 export const updateDateWithNewTime = (existingDate: Date, newTime: Date): Date => {
-    console.log('existingDate:', existingDate);
     const newDate = new Date(new Date(existingDate).setHours(newTime.getHours(), newTime.getMinutes(), 0, 0));
-    console.log('newDate:', newDate);
     return newDate;
 };
 

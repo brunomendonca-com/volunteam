@@ -8,17 +8,19 @@ import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'reac
 import { BorderlessButton } from 'react-native-gesture-handler';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import Spinner from 'react-native-loading-spinner-overlay';
+import { LatLng } from 'react-native-maps';
 import DateTimePickerModal from 'react-native-modal-datetime-picker';
 import { v4 as uuidv4 } from 'uuid';
 import BigButton from '../../components/BigButton';
 import NumberInput from '../../components/NumberInput';
 import Spacer from '../../components/Spacer';
+import { AuthenticationContext } from '../../context/AuthenticationContext';
+import * as api from '../../services/api';
 import * as imageApi from '../../services/imageApi';
 import { UploadedImage } from '../../types/UploadedImage';
+import { User } from '../../types/User';
 import { VolunteeringEvent } from '../../types/VolunteeringEvent';
 import { formatBytes, updateDateWithNewTime } from '../../utils';
-import { VolunteeringEventsContext } from '../../context/EventsContext';
-import { LatLng } from 'react-native-maps';
 
 interface VolunteeringEventDataRouteParams {
     position: LatLng;
@@ -32,7 +34,7 @@ interface FormData {
 }
 
 export default function VolunteeringEventData({ navigation, route }: StackScreenProps<any>) {
-    const events = useContext(VolunteeringEventsContext);
+    const currentUser = useContext(AuthenticationContext)?.value as User;
     const { position } = route.params as VolunteeringEventDataRouteParams;
     const { showActionSheetWithOptions } = useActionSheet();
     const [eventFormValue, setEventFormValue] = useState<FormData>({
@@ -61,16 +63,19 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     };
 
     const handleCreateEvent = () => {
-        // TODO persist event
         const newEvent: VolunteeringEvent = {
             ...eventFormValue,
             id: uuidv4(),
             position,
-            organizerId: 'cba65270-f837-4f21-9d7f-1d042154356d',
+            organizerId: currentUser?.id,
             volunteersIds: [],
             imageUrl: uploadedImage?.url,
         };
-        navigation.navigate('EventsMap');
+        setIsUploading(true);
+        api.createEvent(newEvent).then(() => {
+            setIsUploading(false);
+            navigation.navigate('EventsMap');
+        });
     };
 
     const handleSelectImages = async () => {

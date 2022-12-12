@@ -42,7 +42,7 @@ export default function Routes() {
     };
 
     const authenticationContextObj: AuthenticationContextObject = {
-        value: authenticatedUser,
+        value: authenticatedUser as User,
         setValue: setAuthenticatedUser,
     };
 

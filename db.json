@@ -3,16 +3,15 @@
         {
             "id": "e3c95682-870f-4080-a0d7-ae8e23e2534f",
             "dateTime": "2022-01-11T21:30:00.000Z",
-            "description": "Past event... should not be displayed in the map.",
-            "name": "Past Event",
+            "description": "Past events should not be displayed in the map",
+            "name": "!!!Past Event!!!",
             "organizerId": "cba65270-f837-4f21-9d7f-1d042154356d",
-            "position": { "latitude": 50.905761, "longitude": -114.106943 },
-            "volunteersNeeded": 3,
-            "volunteersIds": [
-                "c114fe72-f55a-46cd-855b-95a05bf635a9",
-                "49dfffeb-f5ba-4771-bd85-1af18f5a34ad",
-                "79a3d186-b06a-4db9-9ac0-dd5ade0ff057"
-            ]
+            "position": {
+                "latitude": 51.105761,
+                "longitude": -114.106943
+            },
+            "volunteersNeeded": 1,
+            "volunteersIds": []
         },
         {
             "id": "98301b22-2b76-44f1-a8da-8c86c56b0367",
@@ -21,7 +20,10 @@
             "imageUrl": "https://i.ibb.co/N3DqYK9/d01296f77464.jpg",
             "name": "Downtown Vibe Live Music",
             "organizerId": "cba65270-f837-4f21-9d7f-1d042154356d",
-            "position": { "latitude": 51.04112, "longitude": -114.069325 },
+            "position": {
+                "latitude": 51.04112,
+                "longitude": -114.069325
+            },
             "volunteersNeeded": 3,
             "volunteersIds": [
                 "c114fe72-f55a-46cd-855b-95a05bf635a9",
@@ -37,7 +39,10 @@
             "imageUrl": "https://i.ibb.co/JKfcDhJ/4900a709b103.jpg",
             "name": "Free Skating Lessons Day",
             "organizerId": "feb027bd-59d2-43d2-bfe3-f8c9536e91c1",
-            "position": { "latitude": 51.01222958257112, "longitude": -114.11677222698927 },
+            "position": {
+                "latitude": 51.01222958257112,
+                "longitude": -114.11677222698927
+            },
             "volunteersNeeded": 10,
             "volunteersIds": [
                 "c114fe72-f55a-46cd-855b-95a05bf635a9",
@@ -54,7 +59,10 @@
             "imageUrl": "https://i.ibb.co/Th4zgqB/774aabc408a6.png",
             "name": "Kids Programming Day",
             "organizerId": "89ae4e45-ff2b-441b-9e5a-eb42e69485dd",
-            "position": { "latitude": 51.010801915407036, "longitude": -114.07823592424393 },
+            "position": {
+                "latitude": 51.010801915407036,
+                "longitude": -114.07823592424393
+            },
             "volunteersNeeded": 2,
             "volunteersIds": ["c114fe72-f55a-46cd-855b-95a05bf635a9", "49dfffeb-f5ba-4771-bd85-1af18f5a34ad"]
         }

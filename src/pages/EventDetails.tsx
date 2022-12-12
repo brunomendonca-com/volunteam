@@ -21,8 +21,8 @@ interface EventDetailsRouteParams {
 export default function EventDetails({ navigation, route }: StackScreenProps<any>) {
     const { currentEventId } = route.params as EventDetailsRouteParams;
     const [organizer, setOrganizer] = useState<User>();
-    const events = useContext(VolunteeringEventsContext).value;
-    const currentUser = useContext(AuthenticationContext).value as User;
+    const events = useContext(VolunteeringEventsContext)?.value as VolunteeringEvent[];
+    const currentUser = useContext(AuthenticationContext)?.value as User;
     const currentEvent = events.find((event) => event.id === currentEventId) as VolunteeringEvent;
     const currentStatus = getCurrentEventStatus(currentEvent, currentUser);
 
@@ -39,14 +39,16 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
 
     return (
         <ScrollView style={styles.container}>
-            <View style={styles.imagesContainer}>
-                <Image
-                    style={styles.image}
-                    source={{
-                        uri: currentEvent.imageUrl,
-                    }}
-                />
-            </View>
+            {currentEvent.imageUrl && (
+                <View style={styles.imagesContainer}>
+                    <Image
+                        style={styles.image}
+                        source={{
+                            uri: currentEvent.imageUrl,
+                        }}
+                    />
+                </View>
+            )}
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.title}>{currentEvent.name}</Text>
