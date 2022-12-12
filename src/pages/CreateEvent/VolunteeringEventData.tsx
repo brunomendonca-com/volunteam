@@ -13,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import BigButton from '../../components/BigButton';
 import NumberInput from '../../components/NumberInput';
 import Spacer from '../../components/Spacer';
-import * as api from '../../services/api';
+import * as imageApi from '../../services/imageApi';
 import { UploadedImage } from '../../types/UploadedImage';
 import { VolunteeringEvent } from '../../types/VolunteeringEvent';
 import { formatBytes, updateDateWithNewTime } from '../../utils';
@@ -141,7 +141,8 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
         if (imageAsset.base64) {
             setIsUploading(true);
 
-            api.uploadImage(imageAsset.base64)
+            imageApi
+                .uploadImage(imageAsset.base64)
                 .then((res) => {
                     const { image, url, size } = res.data.data;
                     const { filename } = image;

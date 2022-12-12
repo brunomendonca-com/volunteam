@@ -1,31 +1,42 @@
-import React, { useContext } from 'react';
-import { Image, View, ScrollView, Text, StyleSheet, Dimensions, Share, ShareAction } from 'react-native';
+import { StackScreenProps } from '@react-navigation/stack';
+import React, { useContext, useEffect, useState } from 'react';
+import { Dimensions, Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { Feather } from '@expo/vector-icons';
-
-import mapMarkerImg from '../images/map-marker.png';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
+import EventInfoBox from '../components/EventInfoBox';
 import Spacer from '../components/Spacer';
-import { VolunteeringEvent, VolunteeringStatus } from '../types/VolunteeringEvent';
-import { StackScreenProps } from '@react-navigation/stack';
-import { formatAMPM, openShareActionsMenu } from '../utils';
-import { VolunteeringEventsContext } from '../context/EventsContext';
-import { User } from '../types/User';
 import { AuthenticationContext } from '../context/AuthenticationContext';
+import { VolunteeringEventsContext } from '../context/EventsContext';
+import mapMarkerImg from '../images/map-marker.png';
+import * as api from '../services/api';
+import * as caching from '../services/caching';
+import { User } from '../types/User';
+import { VolunteeringEvent, VolunteeringStatus } from '../types/VolunteeringEvent';
+import { openShareActionsMenu } from '../utils';
 
 interface EventDetailsRouteParams {
     currentEventId: string;
 }
 export default function EventDetails({ navigation, route }: StackScreenProps<any>) {
     const { currentEventId } = route.params as EventDetailsRouteParams;
+    const [organizer, setOrganizer] = useState<User>();
     const events = useContext(VolunteeringEventsContext).value;
     const currentUser = useContext(AuthenticationContext).value as User;
     const currentEvent = events.find((event) => event.id === currentEventId) as VolunteeringEvent;
+    const currentStatus = getCurrentEventStatus(currentEvent, currentUser);
 
-    console.log('currentUser:', currentUser);
-    const eventStatus = getCurrentEventStatus(currentEvent, currentUser);
-    console.log('eventStatus:', VolunteeringStatus[eventStatus]);
+    useEffect(() => {
+        caching
+            .getFromNetworkFirst(currentEvent.organizerId, api.getUserDetails(currentEvent.organizerId))
+            .then((response) => {
+                console.log(response.data);
+                if (response.status === 200) {
+                    setOrganizer(response.data);
+                }
+            })
+            .catch((error) => console.warn(error));
+    }, []);
 
     return (
         <ScrollView style={styles.container}>
@@ -40,43 +51,64 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
 
             <View style={styles.detailsContainer}>
                 <Text style={styles.title}>{currentEvent.name}</Text>
-                <Text style={styles.organizer}>{`organized by ${currentEvent.organizerId}`}</Text>
+                <Text style={styles.organizer}>{`organized by ${organizer?.name.first} ${organizer?.name.last}`}</Text>
                 <Text style={styles.description}>{currentEvent.description}</Text>
                 <Spacer size={24} />
                 <View style={styles.eventInfoRow}>
-                    <View style={[styles.eventInfoBox, styles.dateTimeInfo]}>
-                        <Feather name="calendar" size={48} color="#00A3FF"></Feather>
-                        <Text style={[styles.eventInfoText, styles.dateTimeText]}>
-                            {`${new Date(currentEvent.dateTime).toDateString()}\n${formatAMPM(currentEvent.dateTime)}`}
-                        </Text>
-                    </View>
+                    <EventInfoBox dateTimeInfo={currentEvent.dateTime} />
                     <Spacer horizontal />
-                    <View style={[styles.eventInfoBox, styles.volunteerInfo]}>
-                        {/* <Feather
-                            name="check"
-                            size={48}
-                            color="#FF8700"
-                        ></Feather> */}
-                        <Text style={styles.volunteerNumber}>
-                            {currentEvent.volunteersIds.length} <Text style={{ fontSize: 24 }}>of</Text>{' '}
-                            {currentEvent.volunteersNeeded}
-                        </Text>
-                        <Text style={[styles.eventInfoText, styles.volunteerText]}>Volunteer(s) needed</Text>
-                    </View>
-                </View>
-                <Spacer size={16} />
-                <View style={styles.eventInfoRow}>
-                    <BigButton label="Share" color="#00A3FF" featherIconName="share-2" onPress={openShareActionsMenu} />
-                    <Spacer horizontal />
-                    <BigButton
-                        label="Volunteer"
-                        color="#FF8700"
-                        featherIconName="plus"
-                        onPress={() => console.log('volunteer pressed')}
+                    <EventInfoBox
+                        volunteeringInfo={{
+                            status: currentStatus,
+                            volunteersCount: currentEvent.volunteersIds.length,
+                            volunteersNeeded: currentEvent.volunteersNeeded,
+                        }}
                     />
                 </View>
+                <Spacer size={16} />
+                {currentStatus !== VolunteeringStatus.FULL && (
+                    <>
+                        <View style={styles.eventInfoRow}>
+                            <BigButton
+                                label="Share"
+                                color="#00A3FF"
+                                featherIconName="share-2"
+                                onPress={openShareActionsMenu}
+                            />
+                            {currentStatus === VolunteeringStatus.APPLIED && (
+                                <>
+                                    <Spacer horizontal />
+                                    <BigButton
+                                        label="Call"
+                                        color="#00A3FF"
+                                        featherIconName="phone"
+                                        onPress={() => console.log('call pressed')}
+                                    />
+                                    <Spacer horizontal />
+                                    <BigButton
+                                        label="Text"
+                                        color="#00A3FF"
+                                        featherIconName="message-circle"
+                                        onPress={() => console.log('text pressed')}
+                                    />
+                                </>
+                            )}
+                            {currentStatus === VolunteeringStatus.NOT_APPLIED && (
+                                <>
+                                    <Spacer horizontal />
+                                    <BigButton
+                                        label="Volunteer"
+                                        color="#FF8700"
+                                        featherIconName="plus"
+                                        onPress={() => console.log('volunteer pressed')}
+                                    />
+                                </>
+                            )}
+                        </View>
+                        <Spacer size={24} />
+                    </>
+                )}
 
-                <Spacer size={24} />
                 <View style={styles.horizontalDivider} />
                 <Spacer size={24} />
 
@@ -141,7 +173,7 @@ const styles = StyleSheet.create({
     organizer: {
         color: '#5C8599',
         fontFamily: 'Nunito_400Regular',
-        fontSize: 12,
+        fontSize: 14,
     },
 
     description: {
@@ -154,49 +186,6 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-    },
-
-    eventInfoBox: {
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 16,
-        borderWidth: 1,
-        borderRadius: 8,
-        alignSelf: 'stretch',
-        flexGrow: 1,
-        flex: 1,
-    },
-
-    eventInfoText: {
-        fontFamily: 'Nunito_600SemiBold',
-        fontSize: 14,
-        textAlign: 'center',
-        marginTop: 8,
-    },
-
-    dateTimeInfo: {
-        backgroundColor: '#E6F6FF',
-        borderColor: '#00A3FF',
-    },
-
-    dateTimeText: {
-        color: '#00A3FF',
-    },
-
-    volunteerInfo: {
-        backgroundColor: '#F2E6D9',
-        borderColor: '#FF8700',
-    },
-
-    volunteerNumber: {
-        fontFamily: 'Nunito_800ExtraBold',
-        fontSize: 32,
-        lineHeight: 36,
-        color: '#FF8700',
-    },
-
-    volunteerText: {
-        color: '#FF8700',
     },
 
     horizontalDivider: {

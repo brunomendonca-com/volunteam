@@ -31,6 +31,13 @@ export const updateDateWithNewTime = (existingDate: Date, newTime: Date): Date =
     return newDate;
 };
 
+export const parseDateFieldFromJSONResponse = (array: [], fieldName: string): any[] => {
+    return array.map((x: any) => {
+        x[fieldName] = new Date(x[fieldName]);
+        return x;
+    });
+};
+
 export const castToNumber = (text: string) => {
     return Number(text);
 };

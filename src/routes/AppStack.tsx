@@ -11,7 +11,8 @@ import VolunteeringEventData from '../pages/CreateEvent/VolunteeringEventData';
 import EventDetails from '../pages/EventDetails';
 import Header from '../components/Header';
 import { VolunteeringEvent } from '../types/VolunteeringEvent';
-import { api } from '../services/api';
+import * as api from '../services/api';
+import * as caching from '../services/caching';
 import { VolunteeringEventsContext, VolunteeringEventsContextObject } from '../context/EventsContext';
 import { AuthenticationContext, AuthenticationContextObject } from '../context/AuthenticationContext';
 import { User } from '../types/User';
@@ -21,19 +22,7 @@ export default function Routes() {
     const [authenticatedUser, setAuthenticatedUser] = useState<User>();
 
     useEffect(() => {
-        const currentDateTime = new Date(Date.now());
-        api.get('/events', { params: { dateTime_gte: currentDateTime } })
-            .then((response) => {
-                if (response.status === 200) {
-                    // TODO parse date from response
-                    setEvents(
-                        response.data.map((event: VolunteeringEvent): VolunteeringEvent => {
-                            return { ...event, dateTime: new Date(event.dateTime) };
-                        })
-                    );
-                }
-            })
-            .catch((error) => console.warn(error));
+        caching.getFromNetworkFirst('events', api.getFutureEvents()).then((events) => setEvents(events));
 
         // TODO get authenticated user from login page
         setAuthenticatedUser({
