@@ -33,11 +33,17 @@ interface FormData {
     dateTime: Date;
 }
 
+interface FormDataErrors {
+    upload: string | null;
+    save: string | null;
+}
+
 export default function VolunteeringEventData({ navigation, route }: StackScreenProps<any>) {
     const currentUser = useContext(AuthenticationContext)?.value as User;
     const { position } = route.params as VolunteeringEventDataRouteParams;
     const { showActionSheetWithOptions } = useActionSheet();
     const [isValid, setIsValid] = useState(false);
+    const [errors, setErrors] = useState<FormDataErrors>({});
     const [eventFormValue, setEventFormValue] = useState<FormData>({
         name: '',
         description: '',
@@ -70,6 +76,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
 
     const handleCreateEvent = () => {
         if (isValid) {
+            setErrors({ ...errors, save: null });
             const newEvent: VolunteeringEvent = {
                 ...eventFormValue,
                 id: uuidv4(),
@@ -84,7 +91,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                 navigation.navigate('EventsMap');
             });
         } else {
-            console.log('showErrors');
+            setErrors({ ...errors, save: 'Event form data is not valid.' });
         }
     };
 
@@ -105,6 +112,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     };
 
     const handleSelectImages = async () => {
+        setErrors({ ...errors, upload: null });
         const options = ['Take Photo...', 'Choose from Library...', 'Cancel'];
         showActionSheetWithOptions(
             {
@@ -192,6 +200,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                         // that falls out of the range of 2xx
                         console.log(error.response.data);
                         console.log(error.response.status);
+                        setErrors({ ...errors, upload: 'Image upload failed.' });
                     }
                 });
         }
@@ -209,6 +218,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                 onChangeText={(name) => {
                     setEventFormValue({ ...eventFormValue, name });
                 }}
+                onBlur={validateForm}
             />
             <Text style={styles.label}>About</Text>
             <TextInput
@@ -293,11 +303,15 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                     </BorderlessButton>
                 </View>
             ) : (
-                <TouchableOpacity style={styles.imageInput} onPress={handleSelectImages}>
-                    <Feather name="plus" size={24} color="#00A3FF80" />
-                </TouchableOpacity>
+                <>
+                    <TouchableOpacity style={styles.imageInput} onPress={handleSelectImages}>
+                        <Feather name="plus" size={24} color="#00A3FF80" />
+                    </TouchableOpacity>
+                    <Text style={styles.error}>{errors.upload}</Text>
+                </>
             )}
             <BigButton onPress={handleCreateEvent} disabled={!isValid} label="Save" color="#00A3FF" />
+            <Text style={styles.error}>{errors.save}</Text>
         </KeyboardAwareScrollView>
     );
 }
@@ -343,7 +357,6 @@ const styles = StyleSheet.create({
         height: 56,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 16,
     },
 
     imageContainer: {
@@ -372,5 +385,13 @@ const styles = StyleSheet.create({
         aspectRatio: 1,
         borderRadius: 4,
         marginRight: 8,
+    },
+
+    error: {
+        color: 'red',
+        fontFamily: 'Nunito_600SemiBold',
+        fontSize: 12,
+        marginTop: 8,
+        marginBottom: 16,
     },
 });
