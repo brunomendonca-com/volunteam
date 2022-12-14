@@ -83,6 +83,8 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                 setIsUploading(false);
                 navigation.navigate('EventsMap');
             });
+        } else {
+            console.log('showErrors');
         }
     };
 
@@ -295,14 +297,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                     <Feather name="plus" size={24} color="#00A3FF80" />
                 </TouchableOpacity>
             )}
-            <BigButton
-                onPress={() => {
-                    if (isValid) handleCreateEvent;
-                }}
-                disabled={!isValid}
-                label="Save"
-                color="#00A3FF"
-            />
+            <BigButton onPress={handleCreateEvent} disabled={!isValid} label="Save" color="#00A3FF" />
         </KeyboardAwareScrollView>
     );
 }
