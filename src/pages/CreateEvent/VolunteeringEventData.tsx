@@ -34,8 +34,8 @@ interface FormData {
 }
 
 interface FormDataErrors {
-    upload: string | null;
-    save: string | null;
+    uploadingError: string | null;
+    savingErrors: string[] | null;
 }
 
 export default function VolunteeringEventData({ navigation, route }: StackScreenProps<any>) {
@@ -43,7 +43,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     const { position } = route.params as VolunteeringEventDataRouteParams;
     const { showActionSheetWithOptions } = useActionSheet();
     const [isValid, setIsValid] = useState(false);
-    const [errors, setErrors] = useState<FormDataErrors>({});
+    const [errors, setErrors] = useState<FormDataErrors>({ uploadingError: null, savingErrors: null });
     const [eventFormValue, setEventFormValue] = useState<FormData>({
         name: '',
         description: '',
@@ -51,12 +51,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
         dateTime: new Date(),
     });
 
-    useEffect(() => {
-        const isFormValid = validateForm();
-        setIsValid(isFormValid);
-    }, [eventFormValue]);
-
-    const [uploadedImage, setUploadedImage] = useState<UploadedImage>();
+    const [image, setImage] = useState<UploadedImage>();
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
     const [datePickerVisibility, setDatePickerVisibility] = useState<boolean>(false);
@@ -75,44 +70,45 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     };
 
     const handleCreateEvent = () => {
-        if (isValid) {
-            setErrors({ ...errors, save: null });
+        if (validateForm()) {
             const newEvent: VolunteeringEvent = {
                 ...eventFormValue,
                 id: uuidv4(),
                 position,
                 organizerId: currentUser?.id,
                 volunteersIds: [],
-                imageUrl: uploadedImage?.url,
+                imageUrl: image?.uploaded ? image?.url : undefined,
             };
             setIsUploading(true);
             api.createEvent(newEvent).then(() => {
                 setIsUploading(false);
                 navigation.navigate('EventsMap');
             });
-        } else {
-            setErrors({ ...errors, save: 'Event form data is not valid.' });
         }
     };
-
     const validateForm = (): boolean => {
+        const errorMessages = getErrorMessages();
+        const isValid = !errorMessages.length;
+        setErrors({ ...errors, savingErrors: errorMessages });
+        setIsValid(isValid);
+        return isValid;
+    };
+
+    const getErrorMessages = (): string[] => {
         const { name, description, volunteersNeeded, dateTime } = eventFormValue;
-        return (
-            // name should have at least 5 characters
-            name.length > 5 &&
-            // description should have at least 30 characters
-            description.length > 30 &&
-            // volunteers needed should be at least 1
-            volunteersNeeded > 0 &&
-            // If the user creates a new event with the current time, it will not be displayed in the map because
-            // the event will be in the past when the user navigates back to the map.
-            // dateTime should be at least 2 hours ahead
-            dateTime > addHours(new Date(), 2)
-        );
+        const errorMessages = [];
+        if (name.length < 3) errorMessages.push('Name should have at least 3 characters');
+        if (description.length < 10) errorMessages.push('Description should have at least 10 characters');
+        if (!volunteersNeeded) errorMessages.push('Volunteers needed should be at least 1');
+        // If the user creates a new event with the current time, it will not be displayed in the map because
+        // the event will be in the past when the user navigates back to the map.
+        if (dateTime < addHours(new Date(), 1)) errorMessages.push('DateTime should be at least 1 hour ahead');
+
+        return errorMessages;
     };
 
     const handleSelectImages = async () => {
-        setErrors({ ...errors, upload: null });
+        setErrors({ ...errors, uploadingError: null });
         const options = ['Take Photo...', 'Choose from Library...', 'Cancel'];
         showActionSheetWithOptions(
             {
@@ -179,6 +175,8 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
     const persistImage = (imageAsset: ImagePicker.ImagePickerAsset) => {
         if (imageAsset.base64) {
             setIsUploading(true);
+            const { fileName, fileSize, uri } = imageAsset;
+            setImage({ filename: fileName as string, size: fileSize as number, url: uri as string, uploaded: false });
 
             imageApi
                 .uploadImage(imageAsset.base64)
@@ -189,8 +187,9 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                         filename,
                         size,
                         url,
+                        uploaded: true,
                     };
-                    setUploadedImage(newUploadedImage);
+                    setImage(newUploadedImage);
                     setIsUploading(false);
                 })
                 .catch((error) => {
@@ -198,16 +197,15 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                     if (error.response) {
                         // The request was made and the server responded with a status code
                         // that falls out of the range of 2xx
-                        console.log(error.response.data);
-                        console.log(error.response.status);
-                        setErrors({ ...errors, upload: 'Image upload failed.' });
+                        const { message } = error.response.data.error;
+                        setErrors({ ...errors, uploadingError: `Image upload failed: ${message}` });
                     }
                 });
         }
     };
 
     const removeImage = () => {
-        setUploadedImage(undefined);
+        setImage(undefined);
     };
 
     return (
@@ -232,7 +230,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                         description,
                     });
                 }}
-                onBlur={() => {}}
+                onBlur={validateForm}
             />
             <Text style={styles.label}>Volunteers Needed</Text>
             <NumberInput
@@ -243,6 +241,7 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                         volunteersNeeded: volunteers,
                     })
                 }
+                onBlur={validateForm}
             />
             <Text style={styles.label}>Date and Time</Text>
             <View style={{ flexDirection: 'row' }}>
@@ -279,21 +278,21 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
             />
             <Text style={styles.label}>Picture</Text>
             <Spinner visible={isUploading} textContent={'Uploading...'} textStyle={styles.spinnerText} size={'small'} />
-            {uploadedImage ? (
+            {image ? (
                 <View style={styles.imageContainer}>
                     <View style={styles.imageGroup}>
                         <Image
                             source={{
-                                uri: uploadedImage.url,
+                                uri: image.url,
                             }}
                             style={styles.image}
                             resizeMode="cover"
                         />
                         <View>
                             <Text style={styles.label}>
-                                {uploadedImage?.filename}
+                                {image?.filename}
                                 {'\n'}
-                                {uploadedImage?.size && formatBytes(uploadedImage.size)}
+                                {image?.size > 0 && formatBytes(image.size)}
                             </Text>
                         </View>
                     </View>
@@ -307,11 +306,16 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                     <TouchableOpacity style={styles.imageInput} onPress={handleSelectImages}>
                         <Feather name="plus" size={24} color="#00A3FF80" />
                     </TouchableOpacity>
-                    <Text style={styles.error}>{errors.upload}</Text>
                 </>
             )}
-            <BigButton onPress={handleCreateEvent} disabled={!isValid} label="Save" color="#00A3FF" />
-            <Text style={styles.error}>{errors.save}</Text>
+            <Text style={styles.error}>{errors.uploadingError}</Text>
+            <BigButton onPress={handleCreateEvent} label="Save" color="#00A3FF" />
+            {errors.savingErrors &&
+                errors.savingErrors.map((errorMsg: string, key: number) => (
+                    <Text key={key} style={styles.error}>
+                        {errorMsg}
+                    </Text>
+                ))}
         </KeyboardAwareScrollView>
     );
 }
@@ -391,7 +395,6 @@ const styles = StyleSheet.create({
         color: 'red',
         fontFamily: 'Nunito_600SemiBold',
         fontSize: 12,
-        marginTop: 8,
-        marginBottom: 16,
+        marginVertical: 8,
     },
 });
