@@ -13,7 +13,7 @@ const api = axios.create({
     //
     // To use `my-json-server`, make sure your `db.json` is located at the repo root.
 
-    baseURL: 'http://10.0.0.176:3333',
+    baseURL: 'https://my-json-server.typicode.com/bvc-mobile-dev/assignment-db',
 });
 
 export const authenticateUser = (email: string, password: string): Promise<AxiosResponse> => {

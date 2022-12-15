@@ -8,10 +8,9 @@ import BigButton from '../components/BigButton';
 import Spacer from '../components/Spacer';
 import { AuthenticationContext } from '../context/AuthenticationContext';
 import logoImg from '../images/logo.png';
-import * as api from '../services/api';
-import { getFromCache, setInCache } from '../services/caching';
+import { getFromCache } from '../services/caching';
 import { User } from '../types/User';
-import { isTokenExpired, sanitizeEmail, validateEmail } from '../utils';
+import { isTokenExpired, validateEmail } from '../utils';
 
 export default function Login({ navigation }: StackScreenProps<any>) {
     const authenticationContext = useContext(AuthenticationContext);
@@ -39,25 +38,21 @@ export default function Login({ navigation }: StackScreenProps<any>) {
         if (accessTokenIsValid && authenticationContext?.value) navigation.navigate('EventsMap');
     }, [accessTokenIsValid]);
 
+    const fakeUserAuth = {
+        name: {
+            first: 'Eva',
+            last: 'Young',
+        },
+        email: 'eva.young@example.com',
+        id: 'ajY8pM2',
+        mobile: '(543) 905-5629',
+    };
+
     const handleAuthentication = () => {
         if (formIsValid()) {
-            setIsAuthenticating(true);
-            api.authenticateUser(sanitizeEmail(email), password)
-                .then((response) => {
-                    setInCache('userInfo', response.data.user);
-                    setInCache('accessToken', response.data.accessToken);
-                    authenticationContext?.setValue(response.data.user);
-                    setIsAuthenticating(false);
-                    navigation.navigate('EventsMap');
-                })
-                .catch((error) => {
-                    if (error.response) {
-                        setAuthError(error.response.data);
-                    } else {
-                        setAuthError('Something went wrong.');
-                    }
-                    setIsAuthenticating(false);
-                });
+            authenticationContext?.setValue(fakeUserAuth);
+            setIsAuthenticating(false);
+            navigation.navigate('EventsMap');
         }
     };
 
