@@ -82,7 +82,7 @@ export default function EventsMap(props: StackScreenProps<any>) {
         eventsAndUserLocations?.push(userLocation);
         mapViewRef.current?.fitToCoordinates(eventsAndUserLocations, {
             edgePadding: MapSettings.EDGE_PADDING,
-            animated: false,
+            animated: true,
         });
     };
 
@@ -116,6 +116,7 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 showsUserLocation={true}
                 rotateEnabled={false}
                 toolbarEnabled={false}
+                moveOnMarkerPress={false}
                 mapPadding={MapSettings.EDGE_PADDING}
                 onMapReady={() => {
                     fitMarkersAndUserLocation;
