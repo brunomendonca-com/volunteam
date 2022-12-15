@@ -16,6 +16,10 @@ const api = axios.create({
     baseURL: 'http://10.0.0.176:3333',
 });
 
+export const authenticateUser = (email: string, password: string): Promise<AxiosResponse> => {
+    return api.post(`/login`, { email, password });
+};
+
 export const getFutureEvents = (): Promise<any> => {
     const currentDateTime = new Date(Date.now());
     return api

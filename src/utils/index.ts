@@ -1,6 +1,7 @@
 import Constants from 'expo-constants';
 import { Platform, Share, ShareAction } from 'react-native';
 import { LatLng } from 'react-native-maps';
+import jwtDecode, { JwtDecodeOptions, JwtPayload } from 'jwt-decode';
 
 export const formatBytes = (bytes: number, decimals = 2): string => {
     if (!+bytes) return '0 Bytes';
@@ -34,6 +35,18 @@ export const addHours = (dateTime: Date, hoursToAdd: number) => {
 export const updateDateWithNewTime = (existingDate: Date, newTime: Date): Date => {
     const newDate = new Date(new Date(existingDate).setHours(newTime.getHours(), newTime.getMinutes(), 0, 0));
     return newDate;
+};
+
+export const sanitizeEmail = (email: string): string => {
+    return email.trim().toLowerCase();
+};
+
+export const validateEmail = (email: string): boolean => {
+    if (!email) return false;
+    const regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{3})+$/;
+    const sanitizedEmail = email.trim().toLowerCase();
+    const result = sanitizedEmail.match(regex);
+    return !!result?.[0];
 };
 
 export const parseDateFieldFromJSONResponse = (array: [], fieldName: string): any[] => {
@@ -85,4 +98,14 @@ export const getMapsUrl = (coordinates: LatLng): string => {
     const latLng = `${latitude},${longitude}`;
     const label = 'Custom Label';
     return Platform.OS === 'ios' ? `maps:0,0?q=${label}@${latLng}` : `geo:0,0?q=${latLng}(${label})`;
+};
+
+export const isTokenExpired = (token: string) => {
+    const decodedToken = jwtDecode(token) as JwtPayload;
+    const currentDate = Date.now();
+    if ((decodedToken.exp as number) * 1000 < currentDate) {
+        return true;
+    } else {
+        return false;
+    }
 };

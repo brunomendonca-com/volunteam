@@ -1,13 +1,12 @@
 import { Feather } from '@expo/vector-icons';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
-
-import * as Location from 'expo-location';
-import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
+import * as Location from 'expo-location';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
+import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import customMapStyle from '../../map-style.json';
 import * as MapSettings from '../constants/MapSettings';
 import { AuthenticationContext } from '../context/AuthenticationContext';
@@ -15,16 +14,17 @@ import { VolunteeringEventsContext } from '../context/EventsContext';
 import mapMarkerBlueImg from '../images/map-marker-blue.png';
 import mapMarkerGreyImg from '../images/map-marker-grey.png';
 import mapMarkerImg from '../images/map-marker.png';
-import { VolunteeringEvent } from '../types/VolunteeringEvent';
 import * as api from '../services/api';
 import * as caching from '../services/caching';
 import { User } from '../types/User';
+import { VolunteeringEvent } from '../types/VolunteeringEvent';
 
 export default function EventsMap(props: StackScreenProps<any>) {
     const { navigation } = props;
     const eventsContext = useContext(VolunteeringEventsContext);
     const events = eventsContext?.value as VolunteeringEvent[];
-    const currentUser = useContext(AuthenticationContext)?.value as User;
+    const authenticationContext = useContext(AuthenticationContext);
+    const currentUser = authenticationContext?.value as User;
 
     const mapViewRef = useRef<MapView>(null);
 
@@ -39,22 +39,22 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 return;
             }
 
-            const currentUserLocation =
-                (await Location.getLastKnownPositionAsync()) || (await Location.getCurrentPositionAsync());
-            if (currentUserLocation) {
-                setUserLocation({
-                    latitude: currentUserLocation.coords.latitude,
-                    longitude: currentUserLocation.coords.longitude,
-                });
-            }
+            await Location.getCurrentPositionAsync().then((currentUserLocation: any) => {
+                if (currentUserLocation) {
+                    setUserLocation({
+                        latitude: currentUserLocation.coords.latitude,
+                        longitude: currentUserLocation.coords.longitude,
+                    });
+                }
+            });
         })();
     }, []);
 
     useFocusEffect(
         useCallback(() => {
-            caching
-                .getFromNetworkFirst('events', api.getFutureEvents())
-                .then((newEvents) => eventsContext?.setValue(newEvents));
+            caching.getFromNetworkFirst('events', api.getFutureEvents()).then((newEvents) => {
+                eventsContext?.setValue(newEvents);
+            });
         }, [])
     );
 
@@ -68,6 +68,13 @@ export default function EventsMap(props: StackScreenProps<any>) {
 
     const handleNavigateToEventDetails = (currentEventId: string) => {
         navigation.navigate('EventDetails', { currentEventId });
+    };
+
+    const handleLogout = async () => {
+        AsyncStorage.multiRemove(['userInfo', 'accessToken']).then(() => {
+            authenticationContext?.setValue(undefined);
+            navigation.navigate('Login');
+        });
     };
 
     const fitMarkersAndUserLocation = () => {
@@ -138,10 +145,19 @@ export default function EventsMap(props: StackScreenProps<any>) {
                 <Text style={styles.footerText}>
                     {events.length ? `${events.length} event(s) found` : `No events found`}
                 </Text>
-                <RectButton style={styles.createEvent} onPress={handleNavigateToCreateEvent}>
+                <RectButton
+                    style={[styles.smallButton, { backgroundColor: '#00A3FF' }]}
+                    onPress={handleNavigateToCreateEvent}
+                >
                     <Feather name="plus" size={20} color="#FFF" />
                 </RectButton>
             </View>
+            <RectButton
+                style={[styles.logoutButton, styles.smallButton, { backgroundColor: '#4D6F80' }]}
+                onPress={handleLogout}
+            >
+                <Feather name="log-out" size={20} color="#FFF" />
+            </RectButton>
         </View>
     );
 }
@@ -156,6 +172,14 @@ const styles = StyleSheet.create({
 
     mapStyle: {
         ...StyleSheet.absoluteFillObject,
+    },
+
+    logoutButton: {
+        position: 'absolute',
+        top: 70,
+        right: 24,
+
+        elevation: 3,
     },
 
     footer: {
@@ -181,10 +205,9 @@ const styles = StyleSheet.create({
         color: '#8fa7b3',
     },
 
-    createEvent: {
+    smallButton: {
         width: 56,
         height: 56,
-        backgroundColor: '#00A3FF',
         borderRadius: 16,
 
         justifyContent: 'center',

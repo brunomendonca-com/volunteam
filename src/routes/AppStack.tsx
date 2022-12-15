@@ -5,6 +5,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 const { Navigator, Screen } = createStackNavigator();
 
+import Login from '../pages/Login';
 import EventsMap from '../pages/EventsMap';
 import SelectMapPosition from '../pages/CreateEvent/SelectMapPosition';
 import VolunteeringEventData from '../pages/CreateEvent/VolunteeringEventData';
@@ -20,19 +21,6 @@ import { User } from '../types/User';
 export default function Routes() {
     const [events, setEvents] = useState<VolunteeringEvent[]>([]);
     const [authenticatedUser, setAuthenticatedUser] = useState<User>();
-
-    useEffect(() => {
-        // TODO get authenticated user from login page
-        setAuthenticatedUser({
-            name: {
-                first: 'Andrei',
-                last: 'Cvejić',
-            },
-            email: 'andrei.cvejic@example.com',
-            id: '89ae4e45-ff2b-441b-9e5a-eb42e69485dd',
-            mobile: '(563) 589-2999',
-        });
-    }, []);
 
     const volunteeringEventsContextObj: VolunteeringEventsContextObject = {
         value: events,
@@ -54,6 +42,8 @@ export default function Routes() {
                             cardStyle: { backgroundColor: '#F2F3F5' },
                         }}
                     >
+                        <Screen name="Login" component={Login} />
+
                         <Screen name="EventsMap" component={EventsMap} />
 
                         <Screen

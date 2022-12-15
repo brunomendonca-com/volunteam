@@ -3,7 +3,7 @@ import { User } from '../types/User';
 
 export type AuthenticationContextObject = {
     value: User;
-    setValue: (newValue: User) => void;
+    setValue: (newValue: User | undefined) => void;
 };
 
 export const AuthenticationContext = createContext<AuthenticationContextObject | null>(null);

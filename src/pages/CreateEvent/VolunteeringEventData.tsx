@@ -277,7 +277,12 @@ export default function VolunteeringEventData({ navigation, route }: StackScreen
                 onCancel={() => setTimePickerVisibility(false)}
             />
             <Text style={styles.label}>Picture</Text>
-            <Spinner visible={isUploading} textContent={'Uploading...'} textStyle={styles.spinnerText} size={'small'} />
+            <Spinner
+                visible={isUploading}
+                textContent={'Uploading...'}
+                overlayColor="#031A62BF"
+                textStyle={styles.spinnerText}
+            />
             {image ? (
                 <View style={styles.imageContainer}>
                     <View style={styles.imageGroup}>

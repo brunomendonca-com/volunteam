@@ -6,6 +6,7 @@ import { RectButton } from 'react-native-gesture-handler';
 interface BigButtonProps {
     label: string;
     color: string;
+    style?: {};
     featherIconName?: keyof typeof Feather.glyphMap;
     disabled?: boolean;
     onPress: () => void;
@@ -13,10 +14,10 @@ interface BigButtonProps {
 
 export default function BigButton(props: BigButtonProps) {
     const styles = styling(props);
-    const { featherIconName, label, color, disabled, onPress } = props;
+    const { featherIconName, label, style, onPress } = props;
 
     return (
-        <RectButton style={styles.button} onPress={onPress}>
+        <RectButton style={[styles.button, style]} onPress={onPress}>
             {featherIconName && <Feather style={styles.icon} name={featherIconName} size={24} color="#FFF" />}
             <Text style={styles.label}>{label}</Text>
         </RectButton>
@@ -30,12 +31,11 @@ const styling = ({ color, disabled }: BigButtonProps) =>
             paddingHorizontal: 32,
             backgroundColor: disabled ? color + '80' : color,
             borderRadius: 16,
-            height: 56,
+            maxHeight: 56,
 
             flexDirection: 'row',
             justifyContent: 'center',
             alignItems: 'center',
-            flexGrow: 1,
             flex: 1,
         },
 

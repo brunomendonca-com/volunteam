@@ -11,12 +11,12 @@ export const getFromNetworkFirst = async <T>(key: string, request: Promise<T>): 
     }
 };
 
-const setInCache = (key: string, value: any) => {
+export const setInCache = (key: string, value: any) => {
     const jsonValue = JSON.stringify(value);
     return AsyncStorage.setItem(key, jsonValue);
 };
 
-const getFromCache = async <T>(key: string): Promise<T> => {
+export const getFromCache = async <T>(key: string): Promise<T> => {
     const json = await AsyncStorage.getItem(key);
     return await (json != null ? Promise.resolve(JSON.parse(json)) : Promise.reject(`Key "${key}" not in cache`));
 };
