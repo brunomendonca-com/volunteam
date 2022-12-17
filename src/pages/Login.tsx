@@ -117,7 +117,7 @@ export default function Login({ navigation }: StackScreenProps<any>) {
                     {emailIsInvalid && <Text style={styles.error}>invalid email</Text>}
                 </View>
                 <TextInput
-                    style={[styles.input, emailIsInvalid && { borderColor: 'red' }]}
+                    style={[styles.input, emailIsInvalid && styles.invalid]}
                     onChangeText={(value) => setEmail(value)}
                     onEndEditing={isEmailInvalid}
                 />
@@ -127,7 +127,7 @@ export default function Login({ navigation }: StackScreenProps<any>) {
                     {passwordIsInvalid && <Text style={styles.error}>invalid password</Text>}
                 </View>
                 <TextInput
-                    style={[styles.input, passwordIsInvalid && { borderColor: 'red' }]}
+                    style={[styles.input, passwordIsInvalid && styles.invalid]}
                     secureTextEntry={true}
                     onChangeText={(value) => setPassword(value)}
                     onEndEditing={isPasswordInvalid}
@@ -186,6 +186,10 @@ const styles = StyleSheet.create({
         color: '#5C8599',
         fontFamily: 'Nunito_600SemiBold',
         fontSize: 15,
+    },
+
+    invalid: {
+        borderColor: 'red',
     },
 
     error: {

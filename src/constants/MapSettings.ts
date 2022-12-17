@@ -1,9 +1,5 @@
 import { EdgePadding, LatLng, Region } from 'react-native-maps';
 
-//
-// Map Settings
-//
-
 export const DEFAULT_POSITION: LatLng = {
     latitude: 51.03,
     longitude: -114.093,

@@ -1,8 +1,7 @@
 import Constants from 'expo-constants';
 import jwtDecode, { JwtPayload } from 'jwt-decode';
-import { Platform, Share } from 'react-native';
+import { Platform } from 'react-native';
 import { LatLng } from 'react-native-maps';
-import { VolunteeringEvent } from '../types/VolunteeringEvent';
 
 export const formatBytes = (bytes: number, decimals = 2): string => {
     if (!+bytes) return '0 Bytes';
@@ -71,18 +70,6 @@ export const getEnvironentVariable = (variableName: string) => {
         }
     } catch (e) {
         console.warn(e);
-    }
-};
-
-export const shareEvent = async (event: VolunteeringEvent) => {
-    const { name, volunteersIds, volunteersNeeded } = event;
-    const volunteersNeededLeft = volunteersNeeded - volunteersIds.length;
-    const message = `Hi! I found this on the Volunteam App! The event "${name}" stills need ${volunteersNeededLeft} volunteer(s).`;
-    try {
-        await Share.share({ message });
-    } catch (error) {
-        if (error instanceof Error) alert(error.message);
-        else alert('Unknown Error');
     }
 };
 

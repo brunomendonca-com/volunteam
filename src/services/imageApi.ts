@@ -20,9 +20,9 @@ const imageApi = axios.create({
     params: { key: getEnvironentVariable('IMGBB_API_KEY') },
 });
 
-export const uploadImage = (image: string): Promise<AxiosResponse> => {
+export const uploadImage = (imageBase64: string): Promise<AxiosResponse> => {
     const data = new FormData();
-    data.append('image', image);
+    data.append('image', imageBase64);
 
     return imageApi.post('/upload', data);
 };
