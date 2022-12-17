@@ -1,6 +1,6 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
-import { Dimensions, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Dimensions, Image, Linking, ScrollView, Share, StyleSheet, Text, View } from 'react-native';
 import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
@@ -13,7 +13,7 @@ import * as api from '../services/api';
 import * as caching from '../services/caching';
 import { User } from '../types/User';
 import { VolunteeringEvent, VolunteeringStatus } from '../types/VolunteeringEvent';
-import { getMapsUrl, shareEvent } from '../utils';
+import { getMapsUrl } from '../utils';
 
 interface EventDetailsRouteParams {
     currentEventId: string;
@@ -47,7 +47,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
         }
     }, [currentEvent]);
 
-    const onVolunteer = () => {
+    const handleVolunteering = () => {
         api.updateVolunteers(currentEvent as VolunteeringEvent, currentUser.id)
             .then((response) => {
                 setCurrentEvent(response.data);
@@ -65,19 +65,31 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
         }
     };
 
-    const call = (phoneNumber: string) => {
+    const handleShareEvent = async (event: VolunteeringEvent) => {
+        const { name, volunteersIds, volunteersNeeded } = event;
+        const volunteersNeededLeft = volunteersNeeded - volunteersIds.length;
+        const message = `Hi! I found this on the Volunteam App! The event "${name}" stills need ${volunteersNeededLeft} volunteer(s).`;
+        try {
+            await Share.share({ message });
+        } catch (error) {
+            if (error instanceof Error) alert(error.message);
+            else alert('Unknown Error');
+        }
+    };
+
+    const handleCall = (phoneNumber: string) => {
         Linking.openURL(`tel:${phoneNumber}`)
             .then(() => null)
             .catch(() => null);
     };
 
-    const textMessage = (phoneNumber: string) => {
+    const handleTextMessage = (phoneNumber: string) => {
         Linking.openURL(`sms:${phoneNumber}`)
             .then(() => null)
             .catch(() => null);
     };
 
-    const openMapsApp = (coordinates: LatLng) => {
+    const handleGetRoutes = (coordinates: LatLng) => {
         Linking.openURL(getMapsUrl(coordinates))
             .then(() => null)
             .catch(() => null);
@@ -126,7 +138,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                                         label="Share"
                                         color="#00A3FF"
                                         featherIconName="share-2"
-                                        onPress={() => shareEvent(currentEvent)}
+                                        onPress={() => handleShareEvent(currentEvent)}
                                     />
                                     {currentStatus === VolunteeringStatus.APPLIED && organizer?.mobile && (
                                         <>
@@ -135,14 +147,14 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                                                 label="Call"
                                                 color="#00A3FF"
                                                 featherIconName="phone"
-                                                onPress={() => call(organizer.mobile)}
+                                                onPress={() => handleCall(organizer.mobile)}
                                             />
                                             <Spacer horizontal />
                                             <BigButton
                                                 label="Text"
                                                 color="#00A3FF"
                                                 featherIconName="message-circle"
-                                                onPress={() => textMessage(organizer.mobile)}
+                                                onPress={() => handleTextMessage(organizer.mobile)}
                                             />
                                         </>
                                     )}
@@ -153,7 +165,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                                                 label="Volunteer"
                                                 color="#FF8700"
                                                 featherIconName="plus"
-                                                onPress={onVolunteer}
+                                                onPress={handleVolunteering}
                                             />
                                         </>
                                     )}
@@ -194,7 +206,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                             label="Get Directions to Event"
                             color="#4D6F80"
                             featherIconName="map-pin"
-                            onPress={() => openMapsApp(currentEvent.position)}
+                            onPress={() => handleGetRoutes(currentEvent.position)}
                         />
                     </View>
                 </>
