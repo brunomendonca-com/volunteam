@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { StatusBar } from 'react-native';
+import React from 'react';
 import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 import {
@@ -11,9 +10,7 @@ import {
 } from '@expo-google-fonts/nunito';
 
 import AppStack from './src/routes/AppStack';
-import { api } from './src/services/api';
-import { VolunteeringEventsContext, VolunteeringEventsContextObject } from './src/context/EventsContext';
-import { VolunteeringEvent } from './src/types/VolunteeringEvent';
+import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
     const [fontsLoaded] = useFonts({
@@ -28,7 +25,7 @@ export default function App() {
     } else {
         return (
             <>
-                <StatusBar backgroundColor="transparent" translucent barStyle="dark-content" />
+                <StatusBar animated translucent style="dark" />
                 <ActionSheetProvider>
                     <AppStack />
                 </ActionSheetProvider>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -12,8 +12,6 @@ import VolunteeringEventData from '../pages/CreateEvent/VolunteeringEventData';
 import EventDetails from '../pages/EventDetails';
 import Header from '../components/Header';
 import { VolunteeringEvent } from '../types/VolunteeringEvent';
-import * as api from '../services/api';
-import * as caching from '../services/caching';
 import { VolunteeringEventsContext, VolunteeringEventsContextObject } from '../context/EventsContext';
 import { AuthenticationContext, AuthenticationContextObject } from '../context/AuthenticationContext';
 import { User } from '../types/User';

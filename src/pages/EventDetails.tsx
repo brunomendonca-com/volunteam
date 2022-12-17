@@ -2,7 +2,6 @@ import { StackScreenProps } from '@react-navigation/stack';
 import React, { useContext, useEffect, useState } from 'react';
 import { Dimensions, Image, Linking, ScrollView, StyleSheet, Text, View } from 'react-native';
 import MapView, { LatLng, Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import { call } from 'react-native-reanimated';
 import customMapStyle from '../../map-style.json';
 import BigButton from '../components/BigButton';
 import EventInfoBox from '../components/EventInfoBox';
@@ -14,7 +13,7 @@ import * as api from '../services/api';
 import * as caching from '../services/caching';
 import { User } from '../types/User';
 import { VolunteeringEvent, VolunteeringStatus } from '../types/VolunteeringEvent';
-import { getMapsUrl, openShareActionsMenu } from '../utils';
+import { getMapsUrl, shareEvent } from '../utils';
 
 interface EventDetailsRouteParams {
     currentEventId: string;
@@ -127,7 +126,7 @@ export default function EventDetails({ navigation, route }: StackScreenProps<any
                                         label="Share"
                                         color="#00A3FF"
                                         featherIconName="share-2"
-                                        onPress={openShareActionsMenu}
+                                        onPress={() => shareEvent(currentEvent)}
                                     />
                                     {currentStatus === VolunteeringStatus.APPLIED && organizer?.mobile && (
                                         <>

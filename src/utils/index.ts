@@ -1,7 +1,8 @@
 import Constants from 'expo-constants';
-import { Platform, Share, ShareAction } from 'react-native';
+import jwtDecode, { JwtPayload } from 'jwt-decode';
+import { Platform, Share } from 'react-native';
 import { LatLng } from 'react-native-maps';
-import jwtDecode, { JwtDecodeOptions, JwtPayload } from 'jwt-decode';
+import { VolunteeringEvent } from '../types/VolunteeringEvent';
 
 export const formatBytes = (bytes: number, decimals = 2): string => {
     if (!+bytes) return '0 Bytes';
@@ -73,20 +74,12 @@ export const getEnvironentVariable = (variableName: string) => {
     }
 };
 
-export const openShareActionsMenu = async () => {
+export const shareEvent = async (event: VolunteeringEvent) => {
+    const { name, volunteersIds, volunteersNeeded } = event;
+    const volunteersNeededLeft = volunteersNeeded - volunteersIds.length;
+    const message = `Hi! I found this on the Volunteam App! The event "${name}" stills need ${volunteersNeededLeft} volunteer(s).`;
     try {
-        const result: ShareAction = await Share.share({
-            message: 'volunteam app | Find opportunities to help people in your area',
-        });
-        if (result.action === Share.sharedAction) {
-            if (result.activityType) {
-                // shared with activity type of result.activityType
-            } else {
-                // shared
-            }
-        } else if (result.action === Share.dismissedAction) {
-            // dismissed
-        }
+        await Share.share({ message });
     } catch (error) {
         if (error instanceof Error) alert(error.message);
         else alert('Unknown Error');

@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
@@ -24,6 +25,7 @@ export default function Login({ navigation }: StackScreenProps<any>) {
 
     const [accessTokenIsValid, setAccessTokenIsValid] = useState<boolean>(false);
     const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
+    const isFocused = useIsFocused();
 
     useEffect(() => {
         getFromCache('userInfo').then(
@@ -51,6 +53,7 @@ export default function Login({ navigation }: StackScreenProps<any>) {
                     setInCache('accessToken', response.data.accessToken);
                     authenticationContext?.setValue(response.data.user);
                     setIsAuthenticating(false);
+                    123;
                     navigation.navigate('EventsMap');
                 })
                 .catch((error) => {
@@ -89,7 +92,7 @@ export default function Login({ navigation }: StackScreenProps<any>) {
             colors={['#031A62', '#00A3FF']}
             style={styles.gradientContainer}
         >
-            <StatusBar animated translucent style="dark" />
+            {isFocused && <StatusBar animated translucent style="light" />}
             <KeyboardAwareScrollView
                 style={styles.container}
                 contentContainerStyle={{

@@ -1,5 +1,4 @@
 import { StyleSheet, TextInput, TextInputProps, View, ViewProps } from 'react-native';
-
 import { useState } from 'react';
 
 type NumberInputProps = {

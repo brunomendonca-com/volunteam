@@ -14,7 +14,6 @@ interface EventInfoBoxProps {
 }
 
 export default function EventInfoBox(props: EventInfoBoxProps) {
-    const styles = styling(props);
     const { dateTimeInfo, volunteeringInfo } = props;
 
     return (
@@ -52,29 +51,28 @@ export default function EventInfoBox(props: EventInfoBoxProps) {
     );
 }
 
-const styling = ({ dateTimeInfo, volunteeringInfo }: EventInfoBoxProps) =>
-    StyleSheet.create({
-        eventInfoBox: {
-            justifyContent: 'center',
-            alignItems: 'center',
-            padding: 16,
-            borderWidth: 1,
-            borderRadius: 8,
-            alignSelf: 'stretch',
-            flexGrow: 1,
-            flex: 1,
-        },
+const styles = StyleSheet.create({
+    eventInfoBox: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 16,
+        borderWidth: 1,
+        borderRadius: 8,
+        alignSelf: 'stretch',
+        flexGrow: 1,
+        flex: 1,
+    },
 
-        eventInfoText: {
-            fontFamily: 'Nunito_600SemiBold',
-            fontSize: 14,
-            textAlign: 'center',
-            marginTop: 8,
-        },
+    eventInfoText: {
+        fontFamily: 'Nunito_600SemiBold',
+        fontSize: 14,
+        textAlign: 'center',
+        marginTop: 8,
+    },
 
-        volunteeringNumbers: {
-            fontFamily: 'Nunito_800ExtraBold',
-            fontSize: 32,
-            lineHeight: 36,
-        },
-    });
+    volunteeringNumbers: {
+        fontFamily: 'Nunito_800ExtraBold',
+        fontSize: 32,
+        lineHeight: 36,
+    },
+});
