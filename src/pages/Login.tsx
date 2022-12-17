@@ -1,5 +1,6 @@
 import { StackScreenProps } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
+import { StatusBar } from 'expo-status-bar';
 import React, { useContext, useEffect, useState } from 'react';
 import { Alert, Image, StyleSheet, Text, TextInput, View } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
@@ -25,12 +26,14 @@ export default function Login({ navigation }: StackScreenProps<any>) {
     const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
 
     useEffect(() => {
-        getFromCache('userInfo').then((cachedUserInfo) => {
-            authenticationContext?.setValue(cachedUserInfo as User);
-        });
-        getFromCache('accessToken').then((accessToken) => {
-            if (accessToken && !isTokenExpired(accessToken as string)) setAccessTokenIsValid(true);
-        });
+        getFromCache('userInfo').then(
+            (cachedUserInfo) => authenticationContext?.setValue(cachedUserInfo as User),
+            (error: any) => console.log(error)
+        );
+        getFromCache('accessToken').then(
+            (accessToken) => accessToken && !isTokenExpired(accessToken as string) && setAccessTokenIsValid(true),
+            (error: any) => console.log(error)
+        );
         if (authError)
             Alert.alert('Authentication Error', authError, [{ text: 'Ok', onPress: () => setAuthError(undefined) }]);
     }, [authError]);
@@ -86,6 +89,7 @@ export default function Login({ navigation }: StackScreenProps<any>) {
             colors={['#031A62', '#00A3FF']}
             style={styles.gradientContainer}
         >
+            <StatusBar animated translucent style="dark" />
             <KeyboardAwareScrollView
                 style={styles.container}
                 contentContainerStyle={{

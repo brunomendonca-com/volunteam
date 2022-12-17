@@ -6,7 +6,6 @@ export const getFromNetworkFirst = async <T>(key: string, request: Promise<T>): 
         setInCache(key, response);
         return response;
     } catch (e) {
-        console.error(e);
         return getFromCache<T>(key);
     }
 };
