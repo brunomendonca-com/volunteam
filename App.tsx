@@ -1,5 +1,5 @@
 import React from 'react';
-import { StatusBar } from 'react-native';
+import { ActionSheetProvider } from '@expo/react-native-action-sheet';
 
 import {
     useFonts,
@@ -10,9 +10,10 @@ import {
 } from '@expo-google-fonts/nunito';
 
 import AppStack from './src/routes/AppStack';
+import { StatusBar } from 'expo-status-bar';
 
 export default function App() {
-    let [fontsLoaded] = useFonts({
+    const [fontsLoaded] = useFonts({
         Nunito_400Regular,
         Nunito_600SemiBold,
         Nunito_700Bold,
@@ -24,12 +25,10 @@ export default function App() {
     } else {
         return (
             <>
-                <StatusBar
-                    backgroundColor="transparent"
-                    translucent
-                    barStyle="dark-content"
-                />
-                <AppStack />
+                <StatusBar animated translucent style="dark" />
+                <ActionSheetProvider>
+                    <AppStack />
+                </ActionSheetProvider>
             </>
         );
     }

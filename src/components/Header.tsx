@@ -9,11 +9,7 @@ interface HeaderProps extends StackHeaderProps {
     title: string;
 }
 
-export default function Header({
-    showCancel = true,
-    title,
-    navigation,
-}: HeaderProps) {
+export default function Header({ showCancel = true, title, navigation }: HeaderProps) {
     function handleCancelCreateEvent() {
         navigation.navigate('EventsMap');
     }
@@ -31,7 +27,7 @@ export default function Header({
                     <Feather name="x" size={24} color="#FF003A" />
                 </BorderlessButton>
             ) : (
-                <View />
+                <View style={{ width: 24 }} />
             )}
         </View>
     );
