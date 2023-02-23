@@ -43,6 +43,9 @@ $ npx json-server --watch db.json --port 3333 --host your_ip_address_here -m ./n
 $ IMGBB_API_KEY="insert_your_api_key_here" npx expo start
 ```
 
+**Pick one of the users from db.json and use the password '123456' to login**
+- ***Note:** We have introduced a bug on this app for the students to fix. The emails with endings other than '.com' will not be able to log in.*
+
 ### Well done, project is started!
 
 ---
