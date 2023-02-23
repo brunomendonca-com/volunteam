@@ -5,7 +5,7 @@ import { parseDateFieldFromJSONResponse } from '../utils';
 const api = axios.create({
     // Before running your 'json-server', get your computer's IP address and
     // update your baseURL to `http://your_ip_address_here:3333` and then run:
-    // `npx json-server --watch db.json --port 3333 --host your_ip_address_here`
+    // `npx json-server --watch db.json --port 3333 --host your_ip_address_here -m ./node_modules/json-server-auth`
     //
     // To access your server online without running json-server locally,
     // you can set your baseURL to:
